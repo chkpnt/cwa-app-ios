@@ -1,29 +1,10 @@
-//
-// Corona-Warn-App
-//
-// SAP SE and all other contributors
-// copyright owners license this file to you under the Apache
-// License, Version 2.0 (the "License"); you may not use this
-// file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-
 import UIKit
 import Combine
 
 class BackgroundAppRefreshViewController: UIViewController {
 
 	// MARK: - Init
-	
+
 	required init?(coder: NSCoder) {
 		super.init(coder: coder)
 
@@ -42,21 +23,21 @@ class BackgroundAppRefreshViewController: UIViewController {
 			}
 		)
 	}
-	
+
 	// MARK: - Overrides
-	
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		setupView()
 		setupBindings()
 	}
-	
+
 	// MARK: - Private
 
 	private var viewModel: BackgroundAppRefreshViewModel!
     private var subscriptions = Set<AnyCancellable>()
 	private let infoBox = InfoBoxView()
-	
+
 	@IBOutlet private weak var subTitleLabel: ENALabel!
 	@IBOutlet private weak var descriptionLabel: ENALabel!
 	@IBOutlet private weak var settingsHeaderLabel: ENALabel!
@@ -67,7 +48,7 @@ class BackgroundAppRefreshViewController: UIViewController {
 	@IBOutlet private weak var contentStackView: UIStackView!
 	@IBOutlet private weak var contentView: UIView!
 	@IBOutlet private weak var contentScrollView: UIScrollView!
-	
+
 	private func setupView() {
 		title = viewModel.title
 		subTitleLabel.text = viewModel.subTitle
@@ -76,11 +57,11 @@ class BackgroundAppRefreshViewController: UIViewController {
 		backgroundAppRefreshTitleLabel.text = viewModel.backgroundAppRefreshTitle
 
 		backgroundAppRefreshStatusStackView.isAccessibilityElement = true
-		
+
 		imageView.isAccessibilityElement = true
 		imageView.accessibilityIdentifier = AccessibilityIdentifiers.Settings.backgroundAppRefreshImageDescription
 	}
-	
+
 	private func setupBindings() {
 		subscriptions = [
 			viewModel.$backgroundAppRefreshStatusText.receive(on: RunLoop.main).sink { [weak self] in
@@ -99,9 +80,9 @@ class BackgroundAppRefreshViewController: UIViewController {
 				self?.updateInfoxBox(with: $0)
 			}
 		]
-		
+
 	}
-	
+
 	private func updateInfoxBox(with viewModel: InfoBoxViewModel?) {
 		if let viewModel = viewModel {
 			if infoBox.superview == nil { contentStackView.addArrangedSubview(infoBox) }

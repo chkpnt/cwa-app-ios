@@ -1,22 +1,3 @@
-//
-// Corona-Warn-App
-//
-// SAP SE and all other contributors
-// copyright owners license this file to you under the Apache
-// License, Version 2.0 (the "License"); you may not use this
-// file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-
 import UIKit
 
 class InfoBoxView: UIView {
@@ -28,7 +9,7 @@ class InfoBoxView: UIView {
 
 		loadViewFromNib()
 	}
-	
+
 	required init?(coder: NSCoder) {
 		super.init(coder: coder)
 
@@ -40,15 +21,15 @@ class InfoBoxView: UIView {
 
 		updateConstraintsForCurrentTraitCollection()
 	}
-	
+
 	// MARK: - Internal
-	
+
 	func update(with viewModel: InfoBoxViewModel) {
 		infoBoxTitle.text = viewModel.titleText
 		infoBoxText.text = viewModel.descriptionText
 		shareButton.setTitle(viewModel.shareText, for: .normal)
 		settingsButton.setTitle(viewModel.settingsText, for: .normal)
-		
+
 		settingsAction = viewModel.settingsAction
 		shareAction = viewModel.shareAction
 
@@ -71,7 +52,7 @@ class InfoBoxView: UIView {
 
 		updateConstraintsForCurrentTraitCollection()
 	}
-	
+
 	// MARK: - Private
 
 	@IBOutlet private weak var infoBoxTitle: ENALabel!
@@ -82,16 +63,16 @@ class InfoBoxView: UIView {
 
 	private var nonAccessibilityConstraints = [NSLayoutConstraint]()
 	private var accessibilityConstraints = [NSLayoutConstraint]()
-	
+
 	private var shareAction: () -> Void = { }
 	private var settingsAction: () -> Void = { }
-	
+
 	private func loadViewFromNib() {
 		let nib = UINib(nibName: "InfoBoxView", bundle: nil)
 		guard let view = nib.instantiate(withOwner: self, options: nil).first as? UIView else {
 			return
 		}
-		
+
 		view.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(view)
 
@@ -102,7 +83,7 @@ class InfoBoxView: UIView {
 			view.leadingAnchor.constraint(equalTo: leadingAnchor)
 		])
 	}
-	
+
 	private func view(for step: InfoBoxViewModel.InstructionStep, index: Int) -> UIView {
 		let containerView = UIView()
 		containerView.isAccessibilityElement = true
@@ -157,7 +138,7 @@ class InfoBoxView: UIView {
 			stepLabel.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor),
 			stepLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor)
 		])
-		
+
 		return containerView
 	}
 
@@ -170,11 +151,11 @@ class InfoBoxView: UIView {
 			NSLayoutConstraint.activate(nonAccessibilityConstraints)
 		}
 	}
-	
+
 	@IBAction private func onShare() {
 		shareAction()
 	}
-	
+
 	@IBAction private func onSettings() {
 		settingsAction()
 	}

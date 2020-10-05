@@ -1,34 +1,16 @@
-//
-// Corona-Warn-App
-//
-// SAP SE and all other contributors
-// copyright owners license this file to you under the Apache
-// License, Version 2.0 (the "License"); you may not use this
-// file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-
 import Foundation
 import UIKit
 
 class AppInformationImprintViewModel {
-	
+
 	static let englishContactFormLink = "https://www.rki.de/SharedDocs/Kontaktformulare/en/Kontaktformulare/weitere/Corona-Warn-App/Corona-Warn-App_Integrator.html"
 	static let germanContactFormLink = "https://www.rki.de/SharedDocs/Kontaktformulare/weitere/Corona-Warn-App/Corona-Warn-App_Integrator.html"
 
 	init(preferredLocalization: String = "de") {
 		self.initTable(localization: preferredLocalization)
 	}
-	
-	
+
+
 	static func contactForms(localization: String) -> [DynamicCell] {
 		let form: DynamicCell = .bodyWithoutTopInset(text: AppStrings.AppInformation.imprintSectionContactFormLink, style: .linkTextView(AppStrings.AppInformation.imprintSectionContactFormTitle), accessibilityIdentifier: AppStrings.AppInformation.imprintSectionContactFormTitle)
 		if localization == "en" || localization == "de" { return [form] }
@@ -39,10 +21,10 @@ class AppInformationImprintViewModel {
 		return [englishForm, germanForm]
 	}
 
-	
+
 	var dynamicTable: DynamicTableViewModel!
-		
-	
+
+
 	func initTable (localization: String = Bundle.main.preferredLocalizations.first ?? "de") {
 		var cells: [DynamicCell] = [
 			.headline(text: AppStrings.AppInformation.imprintSection1Title,

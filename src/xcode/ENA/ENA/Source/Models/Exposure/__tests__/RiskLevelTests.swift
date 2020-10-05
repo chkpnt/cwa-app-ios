@@ -1,22 +1,3 @@
-//
-// Corona-Warn-App
-//
-// SAP SE and all other contributors /
-// copyright owners license this file to you under the Apache
-// License, Version 2.0 (the "License"); you may not use this
-// file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-
 @testable import ENA
 import Foundation
 import XCTest
@@ -31,7 +12,7 @@ final class RiskLevelTests: XCTestCase {
 	3. .increased overrides .unknownInitial & .low
 	4. .unknownOutdated overrides .low AND .increased
 	5. .unknownInitial overrides .low AND .unknownOutdated
-	
+
 	Generally, comparing raw values of the below enum is sufficient to ensure the correct hierarchy, but there is one exception:
 	.unknownOutdated should override .increased - in order to ensure that the user always updates the exposure detection.
 	*/
@@ -39,12 +20,12 @@ final class RiskLevelTests: XCTestCase {
 	func testRiskLevelCompareLow() {
 		// swiftlint:disable:next identical_operands
 		XCTAssertFalse(RiskLevel.low < RiskLevel.low)
-		
+
 		XCTAssert(RiskLevel.low < RiskLevel.unknownOutdated)
 		XCTAssert(RiskLevel.low < RiskLevel.unknownInitial)
 		XCTAssert(RiskLevel.low < RiskLevel.increased)
 		XCTAssert(RiskLevel.low < RiskLevel.inactive)
-		
+
 		// Probably redundant tests...
 		XCTAssertFalse(RiskLevel.low > RiskLevel.unknownOutdated)
 		XCTAssertFalse(RiskLevel.low > RiskLevel.unknownInitial)

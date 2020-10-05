@@ -1,20 +1,3 @@
-// Corona-Warn-App
-//
-// SAP SE and all other contributors
-// copyright owners license this file to you under the Apache
-// License, Version 2.0 (the "License"); you may not use this
-// file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-
 import UIKit
 
 // swiftlint:disable:next type_body_length
@@ -192,8 +175,8 @@ enum AppStrings {
 		static let answerOptionPreferNotToSay = NSLocalizedString("ExposureSubmissionSymptoms_AnswerOptionPreferNotToSay", comment: "")
 		static let continueButton = NSLocalizedString("ExposureSubmissionSymptoms_ContinueButton", comment: "")
 	}
-	
-	
+
+
 	enum ExposureSubmissionSymptomsOnset {
 		static let title = NSLocalizedString("ExposureSubmissionSymptomsOnset_Title", comment: "")
 		static let subtitle = NSLocalizedString("ExposureSubmissionSymptomsOnset_Subtitle", comment: "")
@@ -205,7 +188,7 @@ enum AppStrings {
 		static let answerOptionPreferNotToSay = NSLocalizedString("ExposureSubmissionSymptomsOnset_AnswerOptionPreferNotToSay", comment: "")
 		static let continueButton = NSLocalizedString("ExposureSubmissionSymptomsOnset_ContinueButton", comment: "")
 	}
-	
+
 	enum ExposureSubmissionWarnOthers {
 		static let title = NSLocalizedString("ExposureSubmissionWarnOthers_title", comment: "")
 		static let accImageDescription = NSLocalizedString("ExposureSubmissionWarnOthers_AccImageDescription", comment: "")
@@ -325,7 +308,7 @@ enum AppStrings {
 
 		static let notificationStatusActive = NSLocalizedString("Settings_Notification_StatusActive", comment: "")
 		static let notificationStatusInactive = NSLocalizedString("Settings_Notification_StatusInactive", comment: "")
-		
+
 		static let backgroundAppRefreshStatusActive = NSLocalizedString("Settings_BackgroundAppRefresh_StatusActive", comment: "")
 		static let backgroundAppRefreshStatusInactive = NSLocalizedString("Settings_BackgroundAppRefresh_StatusInactive", comment: "")
 
@@ -368,7 +351,7 @@ enum AppStrings {
 		static let description = NSLocalizedString("BackgroundAppRefreshSettings_Description", comment: "")
 		static let onImageDescription = NSLocalizedString("BackgroundAppRefreshSettings_Image_Description_On", comment: "")
 		static let offImageDescription = NSLocalizedString("BackgroundAppRefreshSettings_Image_Description_Off", comment: "")
-		
+
 		enum Status {
 			static let header = NSLocalizedString("BackgroundAppRefreshSettings_Status_Header", comment: "")
 			static let title = NSLocalizedString("BackgroundAppRefreshSettings_Status_Title", comment: "")
@@ -450,7 +433,7 @@ enum AppStrings {
 		static let onboardingInfo_alwaysStayInformedPage_stateDeactivated = NSLocalizedString("OnboardingInfo_enableLoggingOfContactsPage_stateStopped", comment: "")
 
 		// Onbarding Intro EU Texts
-		
+
 		static let onboardingInfo_ParticipatingCountries_Title = NSLocalizedString("onboardingInfo_enableLoggingOfContactsPage_participatingCountriesTitle", comment: "")
 		static let onboardingInfo_enableLoggingOfContactsPage_euTitle = NSLocalizedString("onboardingInfo_enableLoggingOfContactsPage_euTitle", comment: "")
 		static let onboardingInfo_enableLoggingOfContactsPage_euDescription = NSLocalizedString("onboardingInfo_enableLoggingOfContactsPage_euDescription", comment: "")
@@ -495,7 +478,7 @@ enum AppStrings {
 		static let accLabelInternetOff = NSLocalizedString("ExposureNotificationSetting_AccLabel_InternetOff", comment: "")
 
 		// EU Settings
-		
+
 		static let euTracingRiskDeterminationTitle = NSLocalizedString("ExposureNotificationSetting_euTracingRiskDeterminationTitle", comment: "")
 		static let euTracingAllCountriesTitle = NSLocalizedString("ExposureNotificationSetting_euTracingAllCountriesTitle", comment: "")
 		static let euTitle = NSLocalizedString("ExposureNotificationSetting_EU_Title", comment: "")
@@ -757,21 +740,21 @@ enum AppStrings {
 		static let invalidCharacter = NSLocalizedString("ENATanInput_InvalidCharacter", comment: "")
 		static let characterIndex = NSLocalizedString("ENATanInput_CharacterIndex", comment: "")
 	}
-	
+
 	enum DeltaOnboarding {
 		static let accImageLabel = NSLocalizedString("DeltaOnboarding_AccessibilityImageLabel", comment: "")
 		static let title = NSLocalizedString("DeltaOnboarding_Headline", comment: "")
-		
+
 		static let description = NSLocalizedString("DeltaOnboarding_Description", comment: "")
 		static let participatingCountries = NSLocalizedString("DeltaOnboarding_ParticipatingCountries", comment: "")
-		
+
 		static let participatingCountriesListUnavailableTitle = NSLocalizedString("DeltaOnboarding_ParticipatingCountriesList_Unavailable_Title", comment: "")
 		static let participatingCountriesListUnavailable = NSLocalizedString("DeltaOnboarding_ParticipatingCountriesList_Unavailable", comment: "")
-		
+
 		static let primaryButton = NSLocalizedString("DeltaOnboarding_PrimaryButton_Continue", comment: "")
-		
+
 		static let legalDataProcessingInfoTitle = NSLocalizedString("DeltaOnboarding_DataProcessing_Info_title", tableName: "Localizable.legal", comment: "")
-		
+
 		static let legalDataProcessingInfoContent = NSLocalizedString("DeltaOnboarding_DataProcessing_Info_content", tableName: "Localizable.legal", comment: "")
 
 		static let termsDescription1 = NSLocalizedString("DeltaOnboarding_Terms_Description1", comment: "")

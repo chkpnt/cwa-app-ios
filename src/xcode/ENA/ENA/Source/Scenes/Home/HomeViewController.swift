@@ -1,20 +1,3 @@
-// Corona-Warn-App
-//
-// SAP SE and all other contributors
-// copyright owners license this file to you under the Apache
-// License, Version 2.0 (the "License"); you may not use this
-// file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-
 import ExposureNotification
 import UIKit
 
@@ -93,7 +76,7 @@ final class HomeViewController: UIViewController, RequiresAppDependencies {
 		applySnapshotFromSections()
 
 		setStateOfChildViewControllers()
-		
+
 		let notificationCenter = NotificationCenter.default
 		notificationCenter.addObserver(self, selector: #selector(refreshUIAfterResumingFromBackground), name: UIApplication.didBecomeActiveNotification, object: nil)
 	}
@@ -132,26 +115,26 @@ final class HomeViewController: UIViewController, RequiresAppDependencies {
 	private func showDeltaOnboarding() {
 		appConfigurationProvider.appConfiguration { [weak self] result in
 			guard let self = self else { return }
-			
+
 			let supportedCountries: [Country]
-			
+
 			switch result {
 			case .success(let applicationConfiguration):
 				supportedCountries = applicationConfiguration.supportedCountries.compactMap({ Country(countryCode: $0) })
 			case .failure:
 				supportedCountries = []
 			}
-			
+
 			DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
 				let onboardings: [DeltaOnboarding] = [
 					DeltaOnboardingV15(store: self.store, supportedCountries: supportedCountries)
 				]
-				
+
 				self.deltaOnboardingCoordinator = DeltaOnboardingCoordinator(rootViewController: self, onboardings: onboardings)
 				self.deltaOnboardingCoordinator?.finished = { [weak self] in
 					self?.deltaOnboardingCoordinator = nil
 				}
-				
+
 				self.deltaOnboardingCoordinator?.startOnboarding()
 			}
 		}
