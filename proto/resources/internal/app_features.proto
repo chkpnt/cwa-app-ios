@@ -1,10 +1,8 @@
-// This file is auto-generated, DO NOT make any changes here
 syntax = "proto3";
-package SAP.internal;
-
+package cwa.internal.v2;
 
 message AppFeatures {
-  repeated AppFeature app_features = 1;
+  repeated AppFeature appFeatures = 1;
 }
 
 message AppFeature {

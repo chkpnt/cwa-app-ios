@@ -7,8 +7,6 @@
 // For information on using the generated types, please see the documentation:
 //   https://github.com/apple/swift-protobuf/
 
-/// This file is auto-generated, DO NOT make any changes here
-
 import Foundation
 import SwiftProtobuf
 
@@ -22,19 +20,19 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
   typealias Version = _2
 }
 
-struct SAP_Internal_AppFeatures {
+struct Cwa_Internal_V2_AppFeatures {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var appFeatures: [SAP_Internal_AppFeature] = []
+  var appFeatures: [Cwa_Internal_V2_AppFeature] = []
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
 }
 
-struct SAP_Internal_AppFeature {
+struct Cwa_Internal_V2_AppFeature {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -50,12 +48,12 @@ struct SAP_Internal_AppFeature {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "SAP.internal"
+fileprivate let _protobuf_package = "cwa.internal.v2"
 
-extension SAP_Internal_AppFeatures: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+extension Cwa_Internal_V2_AppFeatures: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".AppFeatures"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "app_features"),
+    1: .same(proto: "appFeatures"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -77,14 +75,14 @@ extension SAP_Internal_AppFeatures: SwiftProtobuf.Message, SwiftProtobuf._Messag
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SAP_Internal_AppFeatures, rhs: SAP_Internal_AppFeatures) -> Bool {
+  static func ==(lhs: Cwa_Internal_V2_AppFeatures, rhs: Cwa_Internal_V2_AppFeatures) -> Bool {
     if lhs.appFeatures != rhs.appFeatures {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
 }
 
-extension SAP_Internal_AppFeature: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+extension Cwa_Internal_V2_AppFeature: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".AppFeature"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "label"),
@@ -114,7 +112,7 @@ extension SAP_Internal_AppFeature: SwiftProtobuf.Message, SwiftProtobuf._Message
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SAP_Internal_AppFeature, rhs: SAP_Internal_AppFeature) -> Bool {
+  static func ==(lhs: Cwa_Internal_V2_AppFeature, rhs: Cwa_Internal_V2_AppFeature) -> Bool {
     if lhs.label != rhs.label {return false}
     if lhs.value != rhs.value {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
