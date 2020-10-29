@@ -25,7 +25,7 @@ import Combine
 protocol ExposureSummaryProvider: AnyObject {
 	typealias Completion = (ENExposureDetectionSummary?) -> Void
 	func detectExposure(
-		appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS,
+		exposureConfiguration: ENExposureConfiguration,
 		activityStateDelegate: ActivityStateProviderDelegate?,
 		completion: @escaping Completion
 	) -> CancellationToken
@@ -123,10 +123,10 @@ extension RiskProvider: RiskProviding {
 		}
 	}
 
-	private func determineSummary(
+	private func determineExposureWindows(
 		userInitiated: Bool,
 		ignoreCachedSummary: Bool = false,
-		appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS,
+		exposureConfiguration: ENExposureConfiguration,
 		completion: @escaping (SummaryMetadata?) -> Void
 	) {
 		Log.info("RiskProvider: Determine summeries.", log: .riskDetection)
@@ -151,7 +151,10 @@ extension RiskProvider: RiskProviding {
 		}
 
 		// The summary is outdated: do a exposure detection
-		self.cancellationToken = exposureSummaryProvider.detectExposure(appConfiguration: appConfiguration, activityStateDelegate: self) { [weak self] detectedSummary in
+		self.cancellationToken = exposureSummaryProvider.detectExposure(
+			exposureConfiguration: exposureConfiguration,
+			activityStateDelegate: self
+		) { [weak self] detectedSummary in
 			guard let self = self else { return }
 
 			if let detectedSummary = detectedSummary {
@@ -220,7 +223,7 @@ extension RiskProvider: RiskProviding {
 		#endif
 
 		provideActivityState(.idle)
-		var summary: SummaryMetadata?
+		var exposureWindows: [ExposureWindow]
 		let tracingHistory = store.tracingStatusHistory
 		let numberOfEnabledHours = tracingHistory.activeTracing().inHours
 		let details = Risk.Details(
@@ -266,8 +269,12 @@ extension RiskProvider: RiskProviding {
 			case .success(let config):
 				appConfiguration = config
 
-				self?.determineSummary(userInitiated: userInitiated, ignoreCachedSummary: ignoreCachedSummary, appConfiguration: config) {
-					summary = $0
+				self?.determineExposureWindows(
+					userInitiated: userInitiated,
+					ignoreCachedSummary: ignoreCachedSummary,
+					exposureConfiguration: ENExposureConfiguration(from: config.exposureConfiguration)
+				) {
+					exposureWindows = $0
 					group.leave()
 				}
 			case .failure(let error):
@@ -290,27 +297,27 @@ extension RiskProvider: RiskProviding {
 
 		cancellationToken = nil
 
-		guard summary != nil else {
+		guard exposureWindows != nil else {
 			Log.info("RiskProvider: Failed determining summary.", log: .riskDetection)
 			self.failOnTargetQueue(error: .failedRiskDetection, completion: completion)
 			return
 		}
 
 		_requestRiskLevel(
-			summary: summary,
+			exposureWindows: exposureWindows,
 			appConfiguration: unwrappedAppConfiguration,
 			completion: completion
 		)
 	}
 
-	private func _requestRiskLevel(summary: SummaryMetadata?, appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS, completion: Completion? = nil) {
+	private func _requestRiskLevel(exposureWindows: [ExposureWindow], appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS, completion: Completion? = nil) {
 		Log.info("RiskProvider: Apply risk calculation", log: .riskDetection)
 
 		let activeTracing = store.tracingStatusHistory.activeTracing()
 
 		guard
 			let risk = riskCalculation.risk(
-				summary: summary?.summary,
+				exposureWindows: exposureWindows,
 				configuration: appConfiguration,
 				dateLastExposureDetection: summary?.date,
 				activeTracing: activeTracing,

@@ -29,6 +29,8 @@
 		016961EF254AFD4C00FF92E3 /* key_download_parameters.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016961EE254AFD4C00FF92E3 /* key_download_parameters.pb.swift */; };
 		016961F4254AFD5300FF92E3 /* risk_calculation_parameters.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016961F3254AFD5300FF92E3 /* risk_calculation_parameters.pb.swift */; };
 		016961F9254AFD5F00FF92E3 /* semantic_version.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016961F8254AFD5F00FF92E3 /* semantic_version.pb.swift */; };
+		01696201254B217A00FF92E3 /* ENExposureConfiguration+ConvenienceInit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01696200254B217A00FF92E3 /* ENExposureConfiguration+ConvenienceInit.swift */; };
+		0169620F254B2F0200FF92E3 /* ScanInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0169620E254B2F0200FF92E3 /* ScanInstance.swift */; };
 		019357182525FAD00038F615 /* ExposureSubmissionQRInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019357162525FAD00038F615 /* ExposureSubmissionQRInfoViewController.swift */; };
 		019357192525FAD00038F615 /* ExposureSubmissionQRInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019357172525FAD00038F615 /* ExposureSubmissionQRInfoViewModel.swift */; };
 		019BFC6C24C9901A0053973D /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 0DFCC2702484DC8400E2811D /* sqlite3.c */; settings = {COMPILER_FLAGS = "-w"; }; };
@@ -282,7 +284,6 @@
 		A1654EFF24B41FF600C0E115 /* DynamicCellTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1654EFD24B41FEF00C0E115 /* DynamicCellTests.swift */; };
 		A1654F0224B43E8500C0E115 /* DynamicTableViewTextViewCellTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1654F0024B43E7F00C0E115 /* DynamicTableViewTextViewCellTests.swift */; };
 		A16714AF248CA1B70031B111 /* Bundle+ReadPlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16714AE248CA1B70031B111 /* Bundle+ReadPlist.swift */; };
-		A16714BB248D18D20031B111 /* SummaryMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16714BA248D18D20031B111 /* SummaryMetadata.swift */; };
 		A173665324844F41006BE209 /* SQLiteKeyValueStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A173665124844F29006BE209 /* SQLiteKeyValueStoreTests.swift */; };
 		A17366552484978A006BE209 /* OnboardingInfoViewControllerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17366542484978A006BE209 /* OnboardingInfoViewControllerUtils.swift */; };
 		A17DA5E32486D8EF006F310F /* RiskLevelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17DA5E12486D8E7006F310F /* RiskLevelTests.swift */; };
@@ -408,7 +409,7 @@
 		B17A44A22464906A00CB195E /* KeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17A44A12464906A00CB195E /* KeyTests.swift */; };
 		B17F2D48248CEB4C00CAA38F /* DetectionMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B18E852E248C29D400CF4FB8 /* DetectionMode.swift */; };
 		B184A380248FFCBE007180F6 /* SecureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B184A37F248FFCBE007180F6 /* SecureStore.swift */; };
-		B184A383248FFCE2007180F6 /* CodableExposureDetectionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B184A382248FFCE2007180F6 /* CodableExposureDetectionSummary.swift */; };
+		B184A383248FFCE2007180F6 /* ExposureWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B184A382248FFCE2007180F6 /* ExposureWindow.swift */; };
 		B18755D124DC45CA00A9202E /* DMStoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B18755D024DC45CA00A9202E /* DMStoreViewController.swift */; };
 		B18C411D246DB30000B8D8CB /* URL+Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B18C411C246DB30000B8D8CB /* URL+Helper.swift */; };
 		B19FD7112491A07000A9D56A /* String+SemanticVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19FD7102491A07000A9D56A /* String+SemanticVersion.swift */; };
@@ -577,6 +578,8 @@
 		016961EE254AFD4C00FF92E3 /* key_download_parameters.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = key_download_parameters.pb.swift; path = ../../../gen/output/internal/key_download_parameters.pb.swift; sourceTree = "<group>"; };
 		016961F3254AFD5300FF92E3 /* risk_calculation_parameters.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = risk_calculation_parameters.pb.swift; path = ../../../gen/output/internal/risk_calculation_parameters.pb.swift; sourceTree = "<group>"; };
 		016961F8254AFD5F00FF92E3 /* semantic_version.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = semantic_version.pb.swift; path = ../../../gen/output/internal/semantic_version.pb.swift; sourceTree = "<group>"; };
+		01696200254B217A00FF92E3 /* ENExposureConfiguration+ConvenienceInit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ENExposureConfiguration+ConvenienceInit.swift"; sourceTree = "<group>"; };
+		0169620E254B2F0200FF92E3 /* ScanInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanInstance.swift; sourceTree = "<group>"; };
 		019357162525FAD00038F615 /* ExposureSubmissionQRInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExposureSubmissionQRInfoViewController.swift; sourceTree = "<group>"; };
 		019357172525FAD00038F615 /* ExposureSubmissionQRInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExposureSubmissionQRInfoViewModel.swift; sourceTree = "<group>"; };
 		01A1B441252DE54600841B63 /* ExposureSubmissionQRScannerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExposureSubmissionQRScannerViewModelTests.swift; sourceTree = "<group>"; };
@@ -856,7 +859,6 @@
 		A1654EFD24B41FEF00C0E115 /* DynamicCellTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicCellTests.swift; sourceTree = "<group>"; };
 		A1654F0024B43E7F00C0E115 /* DynamicTableViewTextViewCellTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicTableViewTextViewCellTests.swift; sourceTree = "<group>"; };
 		A16714AE248CA1B70031B111 /* Bundle+ReadPlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+ReadPlist.swift"; sourceTree = "<group>"; };
-		A16714BA248D18D20031B111 /* SummaryMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryMetadata.swift; sourceTree = "<group>"; };
 		A173665124844F29006BE209 /* SQLiteKeyValueStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SQLiteKeyValueStoreTests.swift; sourceTree = "<group>"; };
 		A17366542484978A006BE209 /* OnboardingInfoViewControllerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingInfoViewControllerUtils.swift; sourceTree = "<group>"; };
 		A17DA5E12486D8E7006F310F /* RiskLevelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiskLevelTests.swift; sourceTree = "<group>"; };
@@ -979,7 +981,7 @@
 		B1741B482462C207006275D9 /* Client.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
 		B17A44A12464906A00CB195E /* KeyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyTests.swift; sourceTree = "<group>"; };
 		B184A37F248FFCBE007180F6 /* SecureStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureStore.swift; sourceTree = "<group>"; };
-		B184A382248FFCE2007180F6 /* CodableExposureDetectionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodableExposureDetectionSummary.swift; sourceTree = "<group>"; };
+		B184A382248FFCE2007180F6 /* ExposureWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExposureWindow.swift; sourceTree = "<group>"; };
 		B18755D024DC45CA00A9202E /* DMStoreViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DMStoreViewController.swift; sourceTree = "<group>"; };
 		B18C411C246DB30000B8D8CB /* URL+Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Helper.swift"; sourceTree = "<group>"; };
 		B18CADAD24782FA4006F53F0 /* ExposureStateUpdating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExposureStateUpdating.swift; sourceTree = "<group>"; };
@@ -1383,7 +1385,6 @@
 				514E81332461B97700636861 /* ExposureManager.swift */,
 				CD678F6A246C43E200B6A0F8 /* MockExposureManager.swift */,
 				518A69FA24687D5800444E66 /* RiskLevel.swift */,
-				A16714BA248D18D20031B111 /* SummaryMetadata.swift */,
 				354E305824EFF26E00526C9F /* Country.swift */,
 				941ADDB12518C3FB00E421D9 /* ENSettingEuTracingViewModel.swift */,
 			);
@@ -1584,6 +1585,7 @@
 				01DB708425068167008F7244 /* Calendar+GregorianLocale.swift */,
 				51895EDB245E16CD0085DA38 /* ENAColor.swift */,
 				710021DB248E44A6001F0B63 /* ENAFont.swift */,
+				01696200254B217A00FF92E3 /* ENExposureConfiguration+ConvenienceInit.swift */,
 				A1BABD0A24A57BA0000ED515 /* ENTemporaryExposureKey+Processing.swift */,
 				2FC0357024B5B70700E234AC /* Error+FAQUrl.swift */,
 				B1C7EE4324938E9E00F1F284 /* ExposureDetection_DidEndPrematurelyReason+ErrorHandling.swift */,
@@ -2510,7 +2512,8 @@
 				AB1011552507C14F00D392A2 /* Models */,
 				013DC101245DAC4E00EE58B0 /* Store.swift */,
 				B184A37F248FFCBE007180F6 /* SecureStore.swift */,
-				B184A382248FFCE2007180F6 /* CodableExposureDetectionSummary.swift */,
+				B184A382248FFCE2007180F6 /* ExposureWindow.swift */,
+				0169620E254B2F0200FF92E3 /* ScanInstance.swift */,
 			);
 			path = Store;
 			sourceTree = "<group>";
@@ -3235,7 +3238,7 @@
 				B1D431CB246C84A400E728AD /* DownloadedPackagesStoreV1.swift in Sources */,
 				714194EA247A65C60072A090 /* DynamicTableViewHeaderSeparatorView.swift in Sources */,
 				2F26CE2E248B9C4F00BE30EE /* UIViewController+BackButton.swift in Sources */,
-				A16714BB248D18D20031B111 /* SummaryMetadata.swift in Sources */,
+				01696201254B217A00FF92E3 /* ENExposureConfiguration+ConvenienceInit.swift in Sources */,
 				51C779162486E5BA004582F8 /* RiskFindingPositiveCollectionViewCell.swift in Sources */,
 				EB6B5D882539AE9400B0ED57 /* DMNotificationsViewController.swift in Sources */,
 				B10FD5F4246EAC1700E9D7F2 /* AppleFilesWriter.swift in Sources */,
@@ -3358,6 +3361,7 @@
 				71FE1C7F247AC2B500851FEB /* ExposureSubmissionTestResultViewController.swift in Sources */,
 				B1D6B002247DA0320079DDD3 /* ExposureDetectionViewControllerDelegate.swift in Sources */,
 				713EA25B247818B000AB7EE8 /* DynamicTypeButton.swift in Sources */,
+				0169620F254B2F0200FF92E3 /* ScanInstance.swift in Sources */,
 				CDA262F824AB808800612E15 /* Coordinator.swift in Sources */,
 				A3552CC624DD6E78008C91BE /* AppDelegate+ENATaskExecutionDelegate.swift in Sources */,
 				0103CED12536D1A100BDAAD1 /* AppInformationCellModel.swift in Sources */,
@@ -3382,7 +3386,7 @@
 				B18755D124DC45CA00A9202E /* DMStoreViewController.swift in Sources */,
 				353412CC2525EE4A0086D15C /* Globals.swift in Sources */,
 				EB08F1872541CE5700D11FA9 /* temporary_exposure_key_signature_list.pb.swift in Sources */,
-				B184A383248FFCE2007180F6 /* CodableExposureDetectionSummary.swift in Sources */,
+				B184A383248FFCE2007180F6 /* ExposureWindow.swift in Sources */,
 				B111EE2C2465D9F7001AEBB4 /* String+Localization.swift in Sources */,
 				01B7232B24F815B00064C0EB /* MultipleChoiceOptionView.swift in Sources */,
 				A1C683FC24AEC9EE00B90D12 /* DynamicTableViewTextCell.swift in Sources */,

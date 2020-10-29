@@ -18,6 +18,7 @@
 //
 
 import Foundation
+import ExposureNotification
 
 /// The `SecureStore` class implements the `Store` protocol that defines all required storage attributes.
 /// It uses an SQLite Database that still needs to be encrypted
@@ -189,9 +190,9 @@ final class SecureStore: Store {
 		}
 	}
 
-	var summary: SummaryMetadata? {
-		get { kvStore["previousSummaryMetadata"] as SummaryMetadata? ?? nil }
-		set { kvStore["previousSummaryMetadata"] = newValue }
+	var exposureWindows: [ExposureWindow] {
+		get { kvStore["exposureWindows"] as [ExposureWindow]? ?? [] }
+		set { kvStore["exposureWindows"] = newValue }
 	}
 
 	var hourlyFetchingEnabled: Bool {

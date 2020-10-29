@@ -24,7 +24,7 @@ import UIKit
 protocol RiskCalculationProtocol {
 
 	func risk(
-		summary: CodableExposureDetectionSummary?,
+		exposureWindows: [ExposureWindow],
 		configuration: Cwa_Internal_V2_ApplicationConfigurationIOS,
 		dateLastExposureDetection: Date?,
 		activeTracing: ActiveTracing,
@@ -68,7 +68,7 @@ struct RiskCalculation: RiskCalculationProtocol {
 		- preconditions: Current state of the `ExposureManager`
 	*/
 	private func riskLevel(
-		summary: CodableExposureDetectionSummary?,
+		exposureWindows: [ExposureWindow],
 		configuration: Cwa_Internal_V2_ApplicationConfigurationIOS,
 		dateLastExposureDetection: Date?,
 		activeTracing: ActiveTracing, // Get this from the `TracingStatusHistory`
@@ -167,7 +167,7 @@ struct RiskCalculation: RiskCalculationProtocol {
 //	}
 
 	func risk(
-		summary: CodableExposureDetectionSummary?,
+		exposureWindows: [ExposureWindow],
 		configuration: Cwa_Internal_V2_ApplicationConfigurationIOS,
 		dateLastExposureDetection: Date?,
 		activeTracing: ActiveTracing,
@@ -175,41 +175,41 @@ struct RiskCalculation: RiskCalculationProtocol {
 		previousRiskLevel: EitherLowOrIncreasedRiskLevel?,
 		providerConfiguration: RiskProvidingConfiguration
 	) -> Risk? {
-		switch riskLevel(
-			summary: summary,
-			configuration: configuration,
-			dateLastExposureDetection: dateLastExposureDetection,
-			activeTracing: activeTracing,
-			preconditions: preconditions,
-			providerConfiguration: providerConfiguration
-		) {
-		case .success(let level):
-			let keyCount = summary?.matchedKeyCount ?? 0
-			let daysSinceLastExposure = keyCount > 0 ? summary?.daysSinceLastExposure : nil
-			let details = Risk.Details(
-				daysSinceLastExposure: daysSinceLastExposure,
-				numberOfExposures: Int(summary?.matchedKeyCount ?? 0),
-				activeTracing: activeTracing,
-				exposureDetectionDate: dateLastExposureDetection ?? Date()
-			)
-
-			var riskLevelHasChanged = false
-			if let previousRiskLevel = previousRiskLevel,
-			   let newRiskLevel = EitherLowOrIncreasedRiskLevel(with: level),
-			   previousRiskLevel != newRiskLevel {
-				// If the newly calculated risk level is different than the stored level, set the flag to true.
-				// Note that we ignore all levels aside from low or increased risk
-				riskLevelHasChanged = true
-			}
-			
-			return Risk(
-				level: level,
-				details: details,
-				riskLevelHasChanged: riskLevelHasChanged
-			)
-		case .failure:
+//		switch riskLevel(
+//			exposureWindows: exposureWindows,
+//			configuration: configuration,
+//			dateLastExposureDetection: dateLastExposureDetection,
+//			activeTracing: activeTracing,
+//			preconditions: preconditions,
+//			providerConfiguration: providerConfiguration
+//		) {
+//		case .success(let level):
+//			let keyCount = summary?.matchedKeyCount ?? 0
+//			let daysSinceLastExposure = keyCount > 0 ? summary?.daysSinceLastExposure : nil
+//			let details = Risk.Details(
+//				daysSinceLastExposure: daysSinceLastExposure,
+//				numberOfExposures: Int(summary?.matchedKeyCount ?? 0),
+//				activeTracing: activeTracing,
+//				exposureDetectionDate: dateLastExposureDetection ?? Date()
+//			)
+//
+//			var riskLevelHasChanged = false
+//			if let previousRiskLevel = previousRiskLevel,
+//			   let newRiskLevel = EitherLowOrIncreasedRiskLevel(with: level),
+//			   previousRiskLevel != newRiskLevel {
+//				// If the newly calculated risk level is different than the stored level, set the flag to true.
+//				// Note that we ignore all levels aside from low or increased risk
+//				riskLevelHasChanged = true
+//			}
+//
+//			return Risk(
+//				level: level,
+//				details: details,
+//				riskLevelHasChanged: riskLevelHasChanged
+//			)
+//		case .failure:
 			return nil
-		}
+//		}
 	}
 }
 

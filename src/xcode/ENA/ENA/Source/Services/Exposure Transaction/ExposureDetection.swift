@@ -21,26 +21,15 @@ import Foundation
 /// Every time the user wants to know the own risk the app creates an `ExposureDetection`.
 final class ExposureDetection {
 
-	// MARK: Properties
-	@Published var activityState: RiskProvider.ActivityState = .idle
-	private weak var delegate: ExposureDetectionDelegate?
-	private var completion: Completion?
-	private var progress: Progress?
-	private var countryKeypackageDownloader: CountryKeypackageDownloading
-	private let appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS
+	typealias Completion = (Result<[ExposureWindow], DidEndPrematurelyReason>) -> Void
 
-	// There was a decision not to use the 2 letter code "EU", but instead "EUR".
-	// Please see this story for more informations: https://jira.itc.sap.com/browse/EXPOSUREBACK-151
-	private let country = "EUR"
+	// MARK: - Init
 
-	// MARK: Creating a Transaction
 	init(
 		delegate: ExposureDetectionDelegate,
-		countryKeypackageDownloader: CountryKeypackageDownloading? = nil,
-		appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS
+		countryKeypackageDownloader: CountryKeypackageDownloading? = nil
 	) {
 		self.delegate = delegate
-		self.appConfiguration = appConfiguration
 
 		if let countryKeypackageDownloader = countryKeypackageDownloader {
 			self.countryKeypackageDownloader = countryKeypackageDownloader
@@ -49,10 +38,53 @@ final class ExposureDetection {
 		}
 	}
 
+	// MARK: - Internal
+
+	@Published var activityState: RiskProvider.ActivityState = .idle
+
+	func start(
+		exposureConfiguration: ENExposureConfiguration,
+		completion: @escaping Completion
+	) {
+		Log.info("ExposureDetection: Start downloading packages.", log: .riskDetection)
+
+		self.completion = completion
+		activityState = .downloading
+
+		downloadKeyPackages { [weak self] in
+			guard let self = self else { return }
+
+			Log.info("ExposureDetection: Completed downloading packages.", log: .riskDetection)
+			Log.info("ExposureDetection: Start writing packages to file system.", log: .riskDetection)
+
+			self.writeKeyPackagesToFileSystem { [weak self] writtenPackages in
+				guard let self = self else { return }
+
+				Log.info("ExposureDetection: Completed writing packages to file system.", log: .riskDetection)
+
+				Log.info("ExposureDetection: Start detecting summary.", log: .riskDetection)
+				self.activityState = .detecting
+				self.detectSummary(writtenPackages: writtenPackages, exposureConfiguration: exposureConfiguration)
+			}
+		}
+	}
+
 	func cancel() {
 		activityState = .idle
 		progress?.cancel()
 	}
+
+	// MARK: - Private
+
+	private weak var delegate: ExposureDetectionDelegate?
+
+	private var completion: Completion?
+	private var progress: Progress?
+	private var countryKeypackageDownloader: CountryKeypackageDownloading
+
+	// There was a decision not to use the 2 letter code "EU", but instead "EUR".
+	// Please see this story for more informations: https://jira.itc.sap.com/browse/EXPOSUREBACK-151
+	private let country = "EUR"
 
 	private func downloadKeyPackages(completion: @escaping () -> Void) {
 		countryKeypackageDownloader.downloadKeypackages(for: country) { [weak self] result in
@@ -73,17 +105,8 @@ final class ExposureDetection {
 		}
 	}
 
-	private var exposureConfiguration: ENExposureConfiguration? {
-		guard let configuration = try? ENExposureConfiguration(from: appConfiguration.exposureConfiguration) else {
-			return nil
-		}
-
-		return configuration
-	}
-
 	private func detectSummary(writtenPackages: WrittenPackages, exposureConfiguration: ENExposureConfiguration) {
 		self.progress = self.delegate?.exposureDetection(
-			self,
 			detectSummaryWithConfiguration: exposureConfiguration,
 			writtenPackages: writtenPackages
 		) { [weak self] result in
@@ -101,43 +124,6 @@ final class ExposureDetection {
 		}
 	}
 
-	typealias Completion = (Result<ENExposureDetectionSummary, DidEndPrematurelyReason>) -> Void
-
-	func start(completion: @escaping Completion) {
-		Log.info("ExposureDetection: Start downloading packages.", log: .riskDetection)
-
-		self.completion = completion
-		activityState = .downloading
-
-		downloadKeyPackages { [weak self] in
-			guard let self = self else { return }
-
-			Log.info("ExposureDetection: Completed downloading packages.", log: .riskDetection)
-			Log.info("ExposureDetection: Start writing packages to file system.", log: .riskDetection)
-
-			self.writeKeyPackagesToFileSystem { [weak self] writtenPackages in
-				guard let self = self else { return }
-
-				Log.info("ExposureDetection: Completed writing packages to file system.", log: .riskDetection)
-
-				self.activityState = .detecting
-
-				if let exposureConfiguration = self.exposureConfiguration {
-					Log.info("ExposureDetection: Start detecting summary.", log: .riskDetection)
-
-					self.detectSummary(writtenPackages: writtenPackages, exposureConfiguration: exposureConfiguration)
-				} else {
-					Log.error("ExposureDetection: End prematurely.", log: .riskDetection, error: DidEndPrematurelyReason.noExposureConfiguration)
-
-					self.endPrematurely(reason: .noExposureConfiguration)
-				}
-			}
-		}
-	}
-
-	// MARK: Working with the Completion Handler
-
-	// Ends the transaction prematurely with a given reason.
 	private func endPrematurely(reason: DidEndPrematurelyReason) {
 		Log.error("ExposureDetection: End prematurely.", log: .riskDetection, error: reason)
 
@@ -169,31 +155,5 @@ final class ExposureDetection {
 			self.completion?(.success(summary))
 			self.completion = nil
 		}
-	}
-}
-
-private extension ENExposureConfiguration {
-	convenience init(from exposureConfiguration: Cwa_Internal_V2_ExposureConfiguration) throws {
-		self.init()
-
-		var dict = [NSNumber: NSNumber]()
-		for (key, value) in exposureConfiguration.infectiousnessForDaysSinceOnsetOfSymptoms {
-			dict[NSNumber(value: key)] = NSNumber(value: value)
-		}
-		infectiousnessForDaysSinceOnsetOfSymptoms = dict
-
-		reportTypeNoneMap = ENDiagnosisReportType(rawValue: ENDiagnosisReportType.RawValue(exposureConfiguration.reportTypeNoneMap)) ?? .unknown
-		attenuationDurationThresholds = exposureConfiguration.attenuationDurationThresholds.map { NSNumber(value: $0) }
-		immediateDurationWeight = exposureConfiguration.immediateDurationWeight
-		mediumDurationWeight = exposureConfiguration.mediumDurationWeight
-		nearDurationWeight = exposureConfiguration.nearDurationWeight
-		otherDurationWeight = exposureConfiguration.otherDurationWeight
-		daysSinceLastExposureThreshold = Int(exposureConfiguration.daysSinceLastExposureThreshold)
-		infectiousnessStandardWeight = exposureConfiguration.infectiousnessStandardWeight
-		infectiousnessHighWeight = exposureConfiguration.infectiousnessHighWeight
-		reportTypeConfirmedTestWeight = exposureConfiguration.reportTypeConfirmedTestWeight
-		reportTypeConfirmedClinicalDiagnosisWeight = exposureConfiguration.reportTypeConfirmedClinicalDiagnosisWeight
-		reportTypeSelfReportedWeight = exposureConfiguration.reportTypeSelfReportedWeight
-		reportTypeRecursiveWeight = exposureConfiguration.reportTypeRecursiveWeight
 	}
 }

@@ -80,7 +80,6 @@ final class ExposureDetectionExecutor: ExposureDetectionDelegate {
 		country: Country.ID,
 		downloadDeltaFor remote: DaysAndHours
 	) -> DaysAndHours {
-
 		// prune the store
 		try? downloadedPackagesStore.deleteOutdatedDays(now: .formattedToday())
 
@@ -125,7 +124,6 @@ final class ExposureDetectionExecutor: ExposureDetectionDelegate {
 	func exposureDetectionWriteDownloadedPackages(
 		country: Country.ID
 	) -> WrittenPackages? {
-
 		let fileManager = FileManager()
 		let rootDir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
 		do {
@@ -162,47 +160,50 @@ final class ExposureDetectionExecutor: ExposureDetectionDelegate {
 	}
 
 	func exposureDetection(
-			_ detection: ExposureDetection,
-			detectSummaryWithConfiguration configuration: ENExposureConfiguration,
-			writtenPackages: WrittenPackages,
-			completion: @escaping (Result<ENExposureDetectionSummary, Error>) -> Void
+		detectSummaryWithConfiguration configuration: ENExposureConfiguration,
+		writtenPackages: WrittenPackages,
+		completion: @escaping (Result<ENExposureDetectionSummary, Error>) -> Void
 	) -> Progress {
-
-		// Clear the key packages and app config on ENError = 2 = .badParameter
-		// For more details, see: https://jira.itc.sap.com/browse/EXPOSUREAPP-3297
-		func clearCacheOnErrorBadParameter(error: Error) {
-			if let enError = error as? ENError, enError.code == .badParameter {
-				// Clear the key packages
-				downloadedPackagesStore.reset()
-				downloadedPackagesStore.open()
-
-				// Clear the app config
-				store.appConfig = nil
-				store.lastAppConfigETag = nil
-				store.lastAppConfigFetch = nil
-			}
-		}
-
-		func withResultFrom(
-				summary: ENExposureDetectionSummary?,
-				error: Error?
-		) -> Result<ENExposureDetectionSummary, Error> {
-			if let error = error {
-				clearCacheOnErrorBadParameter(error: error)
-				return .failure(error)
-			}
-			if let summary = summary {
-				return .success(summary)
-			}
-			fatalError("invalid state")
-		}
 		return exposureDetector.detectExposures(
-				configuration: configuration,
-				diagnosisKeyURLs: writtenPackages.urls
-		) { summary, error in
-			completion(withResultFrom(summary: summary, error: error))
+			configuration: configuration,
+			diagnosisKeyURLs: writtenPackages.urls,
+			completionHandler: { [weak self] summary, error in
+				guard let self = self else { return }
+
+				completion(self.withResultFrom(summary: summary, error: error))
+			}
+		)
+	}
+
+	// Clear the key packages and app config on ENError = 2 = .badParameter
+	// For more details, see: https://jira.itc.sap.com/browse/EXPOSUREAPP-3297
+	private func clearCacheOnErrorBadParameter(error: Error) {
+		if let enError = error as? ENError, enError.code == .badParameter {
+			// Clear the key packages
+			downloadedPackagesStore.reset()
+			downloadedPackagesStore.open()
+
+			// Clear the app config
+			store.appConfig = nil
+			store.lastAppConfigETag = nil
+			store.lastAppConfigFetch = nil
 		}
 	}
+
+	private func withResultFrom(
+		summary: ENExposureDetectionSummary?,
+		error: Error?
+	) -> Result<ENExposureDetectionSummary, Error> {
+		if let error = error {
+			clearCacheOnErrorBadParameter(error: error)
+			return .failure(error)
+		}
+		if let summary = summary {
+			return .success(summary)
+		}
+		fatalError("invalid state")
+	}
+
 }
 
 extension DownloadedPackagesStore {

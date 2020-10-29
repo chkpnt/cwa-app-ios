@@ -31,6 +31,7 @@ struct DaysAndHours {
 /// Methods required to move an exposure detection transaction forward and for consuming
 /// the results of a transaction.
 protocol ExposureDetectionDelegate: AnyObject {
+
 	typealias Completion = (DaysAndHours?) -> Void
 	typealias DetectionHandler = (Result<ENExposureDetectionSummary, Error>) -> Void
 	typealias SupportedCountriesResult = Result<[Country], URLSession.Response.Failure>
@@ -54,10 +55,9 @@ protocol ExposureDetectionDelegate: AnyObject {
 	func exposureDetectionWriteDownloadedPackages(country: Country.ID) -> WrittenPackages?
 
 	func exposureDetection(
-		_ detection: ExposureDetection,
-		detectSummaryWithConfiguration
-		configuration: ENExposureConfiguration,
+		detectSummaryWithConfiguration: ENExposureConfiguration,
 		writtenPackages: WrittenPackages,
 		completion: @escaping DetectionHandler
 	) -> Progress
+
 }

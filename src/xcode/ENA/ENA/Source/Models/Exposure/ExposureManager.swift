@@ -82,6 +82,7 @@ struct ExposureManagerState: Equatable {
 @objc protocol Manager: NSObjectProtocol {
 	static var authorizationStatus: ENAuthorizationStatus { get }
 	func detectExposures(configuration: ENExposureConfiguration, diagnosisKeyURLs: [URL], completionHandler: @escaping ENDetectExposuresHandler) -> Progress
+	func getExposureWindows(summary: ENExposureDetectionSummary, completionHandler: @escaping ENGetExposureWindowsHandler) -> Progress
 	func activate(completionHandler: @escaping ENErrorHandler)
 	func invalidate()
 	var invalidationHandler: (() -> Void)? { get set }
@@ -246,6 +247,31 @@ final class ENAExposureManager: NSObject, ExposureManager {
 
 			self.progress = nil
 			completionHandler(summary, error)
+		}
+
+		progress = _progress
+
+		return _progress
+	}
+
+	/// Wrapper for `ENManager.getExposureWindows`
+	/// `ExposureManager` needs to be activated and enabled
+	func getExposureWindows(summary: ENExposureDetectionSummary, completionHandler: @escaping ENGetExposureWindowsHandler) -> Progress {
+		// An exposure detection is currently running. Call complete with error and return current progress.
+		if let progress = progress, !progress.isCancelled && !progress.isFinished {
+			Log.error("ENAExposureManager: Exposure detection is allready running.", log: .riskDetection, error: ExposureDetectionError.isAlreadyRunning)
+			completionHandler(nil, ExposureDetectionError.isAlreadyRunning)
+			return progress
+		}
+
+		Log.info("ENAExposureManager: Start getting exposure windows.", log: .riskDetection)
+
+		let _progress = manager.getExposureWindows(summary: summary) { [weak self] ExposureWindows, error in
+			guard let self = self else { return }
+			Log.info("ENAExposureManager: Completed getting exposure windows.", log: .riskDetection)
+
+			self.progress = nil
+			completionHandler(ExposureWindows, error)
 		}
 
 		progress = _progress

@@ -37,15 +37,14 @@ extension AppDelegate: CoronaWarnAppDelegate {
 
 extension AppDelegate: ExposureSummaryProvider {
 	func detectExposure(
-		appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS,
+		exposureConfiguration: ENExposureConfiguration,
 		activityStateDelegate: ActivityStateProviderDelegate? = nil,
 		completion: @escaping (ENExposureDetectionSummary?) -> Void
 	) -> CancellationToken {
 		Log.info("AppDelegate: Detect exposure.", log: .riskDetection)
 
 		exposureDetection = ExposureDetection(
-			delegate: exposureDetectionExecutor,
-			appConfiguration: appConfiguration
+			delegate: exposureDetectionExecutor
 		)
 		
 		exposureDetection?
@@ -58,7 +57,7 @@ extension AppDelegate: ExposureSummaryProvider {
 		let token = CancellationToken { [weak self] in
 			self?.exposureDetection?.cancel()
 		}
-		exposureDetection?.start { [weak self] result in
+		exposureDetection?.start(exposureConfiguration: exposureConfiguration) { [weak self] result in
 			switch result {
 			case .success(let summary):
 				Log.info("AppDelegate: Detect exposure completed", log: .riskDetection)

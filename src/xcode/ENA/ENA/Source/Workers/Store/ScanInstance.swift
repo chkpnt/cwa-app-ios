@@ -20,14 +20,20 @@
 import Foundation
 import ExposureNotification
 
-struct SummaryMetadata: Codable {
-	let summary: CodableExposureDetectionSummary
-	let date: Date
+struct ScanInstance: Codable {
+
+	let minimumAttenuation: ENAttenuation
+	let typicalAttenuation: ENAttenuation
+	let secondsSinceLastScan: Int
+
 }
 
-extension SummaryMetadata {
-	init(detectionSummary: ENExposureDetectionSummary, date: Date = Date()) {
-		self.summary = CodableExposureDetectionSummary(with: detectionSummary)
-		self.date = date
+extension ScanInstance {
+
+	init(from scanInstance: ENScanInstance) {
+		minimumAttenuation = scanInstance.minimumAttenuation
+		typicalAttenuation = scanInstance.typicalAttenuation
+		secondsSinceLastScan = scanInstance.secondsSinceLastScan
 	}
+
 }
