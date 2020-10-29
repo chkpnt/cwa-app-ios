@@ -74,11 +74,11 @@ final class ExposureDetection {
 	}
 
 	private var exposureConfiguration: ENExposureConfiguration? {
-//		guard let configuration = try? ENExposureConfiguration(from: appConfiguration.exposureConfig, minRiskScore: appConfiguration.minRiskScore) else {
+		guard let configuration = try? ENExposureConfiguration(from: appConfiguration.exposureConfiguration) else {
 			return nil
-//		}
+		}
 
-//		return configuration
+		return configuration
 	}
 
 	private func detectSummary(writtenPackages: WrittenPackages, exposureConfiguration: ENExposureConfiguration) {
@@ -173,43 +173,27 @@ final class ExposureDetection {
 }
 
 private extension ENExposureConfiguration {
-	convenience init(from riskscoreParameters: Cwa_Internal_V2_RiskCalculationParameters, minRiskScore: Int32) throws {
+	convenience init(from exposureConfiguration: Cwa_Internal_V2_ExposureConfiguration) throws {
 		self.init()
-		minimumRiskScore = UInt8(clamping: minRiskScore)
-		minimumRiskScoreFullRange = Double(minRiskScore)
-//		attenuationLevelValues = riskscoreParameters.attenuation.asArray
-//		daysSinceLastExposureLevelValues = riskscoreParameters.daysSinceLastExposure.asArray
-//		durationLevelValues = riskscoreParameters.duration.asArray
-//		transmissionRiskLevelValues = riskscoreParameters.transmission.asArray
+
+		var dict = [NSNumber: NSNumber]()
+		for (key, value) in exposureConfiguration.infectiousnessForDaysSinceOnsetOfSymptoms {
+			dict[NSNumber(value: key)] = NSNumber(value: value)
+		}
+		infectiousnessForDaysSinceOnsetOfSymptoms = dict
+
+		reportTypeNoneMap = ENDiagnosisReportType(rawValue: ENDiagnosisReportType.RawValue(exposureConfiguration.reportTypeNoneMap)) ?? .unknown
+		attenuationDurationThresholds = exposureConfiguration.attenuationDurationThresholds.map { NSNumber(value: $0) }
+		immediateDurationWeight = exposureConfiguration.immediateDurationWeight
+		mediumDurationWeight = exposureConfiguration.mediumDurationWeight
+		nearDurationWeight = exposureConfiguration.nearDurationWeight
+		otherDurationWeight = exposureConfiguration.otherDurationWeight
+		daysSinceLastExposureThreshold = Int(exposureConfiguration.daysSinceLastExposureThreshold)
+		infectiousnessStandardWeight = exposureConfiguration.infectiousnessStandardWeight
+		infectiousnessHighWeight = exposureConfiguration.infectiousnessHighWeight
+		reportTypeConfirmedTestWeight = exposureConfiguration.reportTypeConfirmedTestWeight
+		reportTypeConfirmedClinicalDiagnosisWeight = exposureConfiguration.reportTypeConfirmedClinicalDiagnosisWeight
+		reportTypeSelfReportedWeight = exposureConfiguration.reportTypeSelfReportedWeight
+		reportTypeRecursiveWeight = exposureConfiguration.reportTypeRecursiveWeight
 	}
 }
-
-private extension SAP_Internal_RiskLevel {
-	var asNumber: NSNumber {
-		NSNumber(value: rawValue)
-	}
-}
-
-//private extension Cwa_Internal_V2_RiskCalculationParameters.TransmissionRiskParameters {
-//	var asArray: [NSNumber] {
-//		[appDefined1, appDefined2, appDefined3, appDefined4, appDefined5, appDefined6, appDefined7, appDefined8].map { $0.asNumber }
-//	}
-//}
-//
-//private extension Cwa_Internal_V2_RiskCalculationParameters.DaysSinceLastExposureRiskParameters {
-//	var asArray: [NSNumber] {
-//		[ge14Days, ge12Lt14Days, ge10Lt12Days, ge8Lt10Days, ge6Lt8Days, ge4Lt6Days, ge2Lt4Days, ge0Lt2Days].map { $0.asNumber }
-//	}
-//}
-//
-//private extension Cwa_Internal_V2_RiskCalculationParameters.DurationRiskParameters {
-//	var asArray: [NSNumber] {
-//		[eq0Min, gt0Le5Min, gt5Le10Min, gt10Le15Min, gt15Le20Min, gt20Le25Min, gt25Le30Min, gt30Min].map { $0.asNumber }
-//	}
-//}
-//
-//private extension Cwa_Internal_V2_RiskCalculationParameters.AttenuationRiskParameters {
-//	var asArray: [NSNumber] {
-//		[gt73Dbm, gt63Le73Dbm, gt51Le63Dbm, gt33Le51Dbm, gt27Le33Dbm, gt15Le27Dbm, gt10Le15Dbm, le10Dbm].map { $0.asNumber }
-//	}
-//}
