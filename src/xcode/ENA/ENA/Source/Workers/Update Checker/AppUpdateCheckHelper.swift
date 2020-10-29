@@ -48,27 +48,19 @@ final class AppUpdateCheckHelper {
 		appConfigurationProvider.appConfiguration { [weak self] result in
 			guard let self = self else { return }
 
-			var _versionInfo: SAP_Internal_ApplicationVersionConfiguration?
-
 			switch result {
 			case .success(let applicationConfiguration):
-				_versionInfo = applicationConfiguration.appVersion
+				let alertType = self.alertTypeFrom(
+					currentVersion: Bundle.main.appVersion,
+					minVersion: applicationConfiguration.minVersion,
+					latestVersion: applicationConfiguration.latestVersion
+				)
+
+				guard let alert = self.createAlert(alertType, vc: vc) else { return }
+				vc?.present(alert, animated: true, completion: nil)
 			case .failure(let error):
 				Log.error("Error while loading app configuration: \(error).", log: .api)
 			}
-
-			guard let versionInfo = _versionInfo else {
-				return
-			}
-
-			let alertType = self.alertTypeFrom(
-				currentVersion: Bundle.main.appVersion,
-				minVersion: versionInfo.ios.min,
-				latestVersion: versionInfo.ios.latest
-			)
-
-			guard let alert = self.createAlert(alertType, vc: vc) else { return }
-			vc?.present(alert, animated: true, completion: nil)
 		}
 	}
 
