@@ -20,7 +20,7 @@
 import XCTest
 @testable import ENA
 
-final class SAP_Internal_SemanticVersionTests: XCTestCase {
+final class Cwa_Internal_V2_SemanticVersionTests: XCTestCase {
 	func testParseVersionString_Success() {
 		let version = "1.2.3".semanticVersion
 		XCTAssertNotNil(version)
@@ -62,8 +62,8 @@ final class SAP_Internal_SemanticVersionTests: XCTestCase {
     }
 }
 
-private typealias Version = SAP_Internal_SemanticVersion
-private extension SAP_Internal_SemanticVersion {
+private typealias Version = Cwa_Internal_V2_SemanticVersion
+private extension Cwa_Internal_V2_SemanticVersion {
 	init(_ major: Int, _ minor: Int, _ patch: Int) {
 		self.init()
 		self.major = UInt32(major)

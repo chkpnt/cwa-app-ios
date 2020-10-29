@@ -27,7 +27,7 @@ final class ExposureDetection {
 	private var completion: Completion?
 	private var progress: Progress?
 	private var countryKeypackageDownloader: CountryKeypackageDownloading
-	private let appConfiguration: SAP_Internal_ApplicationConfiguration
+	private let appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS
 
 	// There was a decision not to use the 2 letter code "EU", but instead "EUR".
 	// Please see this story for more informations: https://jira.itc.sap.com/browse/EXPOSUREBACK-151
@@ -37,7 +37,7 @@ final class ExposureDetection {
 	init(
 		delegate: ExposureDetectionDelegate,
 		countryKeypackageDownloader: CountryKeypackageDownloading? = nil,
-		appConfiguration: SAP_Internal_ApplicationConfiguration
+		appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS
 	) {
 		self.delegate = delegate
 		self.appConfiguration = appConfiguration

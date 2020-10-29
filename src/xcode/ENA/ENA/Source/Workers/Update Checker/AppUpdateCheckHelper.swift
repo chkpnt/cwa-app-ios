@@ -114,8 +114,8 @@ final class AppUpdateCheckHelper {
 
 	func alertTypeFrom(
 		currentVersion: String,
-		minVersion: SAP_Internal_SemanticVersion,
-		latestVersion: SAP_Internal_SemanticVersion
+		minVersion: Cwa_Internal_V2_SemanticVersion,
+		latestVersion: Cwa_Internal_V2_SemanticVersion
 	) -> UpdateAlertType {
 		guard let currentSemanticVersion = currentVersion.semanticVersion else {
 			return .none

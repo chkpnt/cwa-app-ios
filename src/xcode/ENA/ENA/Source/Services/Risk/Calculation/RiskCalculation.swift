@@ -25,7 +25,7 @@ protocol RiskCalculationProtocol {
 
 	func risk(
 		summary: CodableExposureDetectionSummary?,
-		configuration: SAP_Internal_ApplicationConfiguration,
+		configuration: Cwa_Internal_V2_ApplicationConfigurationIOS,
 		dateLastExposureDetection: Date?,
 		activeTracing: ActiveTracing,
 		preconditions: ExposureManagerState,
@@ -69,7 +69,7 @@ struct RiskCalculation: RiskCalculationProtocol {
 	*/
 	private func riskLevel(
 		summary: CodableExposureDetectionSummary?,
-		configuration: SAP_Internal_ApplicationConfiguration,
+		configuration: Cwa_Internal_V2_ApplicationConfigurationIOS,
 		dateLastExposureDetection: Date?,
 		activeTracing: ActiveTracing, // Get this from the `TracingStatusHistory`
 		preconditions: ExposureManagerState,
@@ -167,7 +167,7 @@ struct RiskCalculation: RiskCalculationProtocol {
 
 	func risk(
 		summary: CodableExposureDetectionSummary?,
-		configuration: SAP_Internal_ApplicationConfiguration,
+		configuration: Cwa_Internal_V2_ApplicationConfigurationIOS,
 		dateLastExposureDetection: Date?,
 		activeTracing: ActiveTracing,
 		preconditions: ExposureManagerState,

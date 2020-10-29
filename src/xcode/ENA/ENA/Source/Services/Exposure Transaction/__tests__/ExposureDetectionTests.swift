@@ -69,7 +69,7 @@ final class ExposureDetectionTransactionTests: XCTestCase {
 		let startCompletionCalled = expectation(description: "start completion called")
 		let detection = ExposureDetection(
 			delegate: delegate,
-			appConfiguration: SAP_Internal_ApplicationConfiguration()
+			appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS()
 		)
 		detection.start { _ in
 			startCompletionCalled.fulfill()
@@ -101,7 +101,7 @@ final class ExposureDetectionTransactionTests: XCTestCase {
 		let detection = ExposureDetection(
 			delegate: delegate,
 			countryKeypackageDownloader: packageDownloader,
-			appConfiguration: SAP_Internal_ApplicationConfiguration()
+			appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS()
 		)
 
 		let expectationNoDaysAndHours = expectation(description: "completion with NoDaysAndHours error called.")
@@ -146,7 +146,7 @@ final class ExposureDetectionTransactionTests: XCTestCase {
 		let detection = ExposureDetection(
 			delegate: delegate,
 			countryKeypackageDownloader: packageDownloader,
-			appConfiguration: SAP_Internal_ApplicationConfiguration()
+			appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS()
 		)
 
 		let expectationFailureResult = expectation(description: "Detection should fail.")
@@ -181,7 +181,7 @@ final class ExposureDetectionTransactionTests: XCTestCase {
 		let detection = ExposureDetection(
 			delegate: delegate,
 			countryKeypackageDownloader: packageDownloader,
-			appConfiguration: SAP_Internal_ApplicationConfiguration()
+			appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS()
 		)
 
 		let expectationFailureResult = expectation(description: "Detection should fail.")
@@ -202,11 +202,11 @@ final class ExposureDetectionTransactionTests: XCTestCase {
 
 final class AppConfigurationProviderFake: AppConfigurationProviding {
 	func appConfiguration(forceFetch: Bool, completion: @escaping Completion) {
-		completion(.success(SAP_Internal_ApplicationConfiguration()))
+		completion(.success(Cwa_Internal_V2_ApplicationConfigurationIOS()))
 	}
 
 	func appConfiguration(completion: @escaping Completion) {
-		completion(.success(SAP_Internal_ApplicationConfiguration()))
+		completion(.success(Cwa_Internal_V2_ApplicationConfigurationIOS()))
 	}
 }
 
