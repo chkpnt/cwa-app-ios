@@ -71,8 +71,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate, RequiresAppDepend
 				var uiTestRiskLevel: RiskLevel
 				var uiTestExposureNumber = 100
 				switch uiTestRiskLevelEnv {
-				case "increased":
-					uiTestRiskLevel = RiskLevel.increased
+				case "high":
+					uiTestRiskLevel = RiskLevel.high
 				case "low":
 					uiTestRiskLevel = RiskLevel.low
 					uiTestExposureNumber = 7

@@ -85,9 +85,9 @@ class ENAUITests_01_Home: XCTestCase {
 		//snapshot("ScreenShot_\(#function)")
 	}
 	
-	func test_screenshot_homescreen_riskCardIncreased() throws {
+	func test_screenshot_homescreen_riskCardHigh() throws {
 		var screenshotCounter = 0
-		let riskLevel = "increased"
+		let riskLevel = "high"
 		app.setPreferredContentSizeCategory(accessibililty: .accessibility, size: .XS)
 		app.launchArguments.append(contentsOf: ["-riskLevel", riskLevel])
 		app.launch()

@@ -203,7 +203,7 @@ final class RiskCalculationTests: XCTestCase {
 		XCTAssertEqual(risk?.level, .low)
 	}
 
-	func testCalculateRisk_IncreasedRisk() {
+	func testCalculateRisk_HighRisk() {
 		let config = RiskProvidingConfiguration(
 			exposureDetectionValidityDuration: .init(day: 1),
 			exposureDetectionInterval: .init(day: 1),
@@ -214,7 +214,7 @@ final class RiskCalculationTests: XCTestCase {
 		summary.daysSinceLastExposure = 5
 		summary.matchedKeyCount = 10
 
-		// Test the case where preconditions pass and there is increased risk
+		// Test the case where preconditions pass and there is high risk
 		let risk = RiskCalculation().risk(
 			summary: summary,
 			configuration: .riskCalculationAppConfig,
@@ -227,7 +227,7 @@ final class RiskCalculationTests: XCTestCase {
 		)
 
 		XCTAssertEqual(risk?.details.daysSinceLastExposure, 5)
-		XCTAssertEqual(risk?.level, .increased)
+		XCTAssertEqual(risk?.level, .high)
 	}
 
 	// MARK: - Risk Level Calculation Error Cases
@@ -239,7 +239,7 @@ final class RiskCalculationTests: XCTestCase {
 			detectionMode: .automatic
 		)
 
-		// Test the case where preconditions pass and there is increased risk
+		// Test the case where preconditions pass and there is high risk
 		// Values below are hand-picked to result in a raw risk score of 5.12 - within a gap in the range
 		let summary: CodableExposureDetectionSummary = .makeExposureSummaryContainer(maxRiskScoreFullRange: 128, ad_low: 30, ad_mid: 30, ad_high: 30)
 		let risk = RiskCalculation().risk(
@@ -263,7 +263,7 @@ final class RiskCalculationTests: XCTestCase {
 			detectionMode: .automatic
 		)
 
-		// Test the case where preconditions pass and there is increased risk
+		// Test the case where preconditions pass and there is high risk
 		// Values below are hand-picked to result in a raw risk score of 13.6 - outside of the top range of the config
 		let summary: CodableExposureDetectionSummary = .makeExposureSummaryContainer(maxRiskScoreFullRange: 255, ad_low: 40, ad_mid: 40, ad_high: 40)
 		let risk = RiskCalculation().risk(
@@ -287,7 +287,7 @@ final class RiskCalculationTests: XCTestCase {
 			detectionMode: .automatic
 		)
 
-		// Test the case where preconditions pass and there is increased risk
+		// Test the case where preconditions pass and there is high risk
 		// Values below are hand-picked to result in a raw risk score of 0.85 - outside of the bottom bound of the config
 		let summary: CodableExposureDetectionSummary = .makeExposureSummaryContainer(maxRiskScoreFullRange: 64, ad_low: 10, ad_mid: 10, ad_high: 10)
 		let risk = RiskCalculation().risk(
@@ -308,7 +308,7 @@ final class RiskCalculationTests: XCTestCase {
 
 	// There is a certain order to risk levels, and some override others. This is tested below.
 
-	func testCalculateRisk_UnknownOutdatedOverridesIncreased() {
+	func testCalculateRisk_UnknownOutdatedOverridesHigh() {
 		let config = RiskProvidingConfiguration(
 			exposureDetectionValidityDuration: .init(day: 1),
 			exposureDetectionInterval: .init(day: 1),
@@ -316,7 +316,7 @@ final class RiskCalculationTests: XCTestCase {
 		)
 
 		// Test case where last exposure summary was gotten too far in the past,
-		// But the risk is increased
+		// But the risk is high
 		let risk = RiskCalculation().risk(
 			summary: .summaryHigh,
 			configuration: .riskCalculationAppConfig,
@@ -331,7 +331,7 @@ final class RiskCalculationTests: XCTestCase {
 		XCTAssertTrue(risk?.riskLevelHasChanged == false)
 	}
 
-	func testCalculateRisk_IncreasedOverridesUnknownOutdated() {
+	func testCalculateRisk_HighOverridesUnknownOutdated() {
 		let config = RiskProvidingConfiguration(
 			exposureDetectionValidityDuration: .init(day: 1),
 			exposureDetectionInterval: .init(day: 1),
@@ -340,7 +340,7 @@ final class RiskCalculationTests: XCTestCase {
 
 		// Test case where last exposure summary was gotten less then 1 day
 		// Active tracing is more then 24h
-		// But the risk is increased
+		// But the risk is high
 		let risk = RiskCalculation().risk(
 			summary: .summaryHigh,
 			configuration: .riskCalculationAppConfig,
@@ -351,11 +351,11 @@ final class RiskCalculationTests: XCTestCase {
 			providerConfiguration: config
 		)
 
-		XCTAssertEqual(risk?.level, .increased)
+		XCTAssertEqual(risk?.level, .high)
 		XCTAssertTrue(risk?.riskLevelHasChanged == false)
 	}
 
-	func testCalculateRisk_IncreasedOverridesUnknownOutdated2() {
+	func testCalculateRisk_HighOverridesUnknownOutdated2() {
 		let config = RiskProvidingConfiguration(
 			exposureDetectionValidityDuration: .init(day: 1),
 			exposureDetectionInterval: .init(day: 1),
@@ -364,7 +364,7 @@ final class RiskCalculationTests: XCTestCase {
 
 		// Test case where last exposure summary was gotten more then 1 day
 		// Active tracing is less then 24h
-		// But the risk is increased
+		// But the risk is high
 		let risk = RiskCalculation().risk(
 			summary: .summaryHigh,
 			configuration: .riskCalculationAppConfig,
@@ -375,11 +375,11 @@ final class RiskCalculationTests: XCTestCase {
 			providerConfiguration: config
 		)
 
-		XCTAssertEqual(risk?.level, .increased)
+		XCTAssertEqual(risk?.level, .high)
 		XCTAssertTrue(risk?.riskLevelHasChanged == false)
 	}
 
-	func testCalculateRisk_IncreasedOverridesUnknownOutdated3() {
+	func testCalculateRisk_HighOverridesUnknownOutdated3() {
 		let config = RiskProvidingConfiguration(
 			exposureDetectionValidityDuration: .init(day: 1),
 			exposureDetectionInterval: .init(day: 1),
@@ -388,7 +388,7 @@ final class RiskCalculationTests: XCTestCase {
 
 		// Test case where last exposure summary was gotten less then 1 day
 		// Active tracing is less then 24h
-		// But the risk is increased
+		// But the risk is high
 		let risk = RiskCalculation().risk(
 			summary: .summaryHigh,
 			configuration: .riskCalculationAppConfig,
@@ -399,7 +399,7 @@ final class RiskCalculationTests: XCTestCase {
 			providerConfiguration: config
 		)
 
-		XCTAssertEqual(risk?.level, .increased)
+		XCTAssertEqual(risk?.level, .high)
 		XCTAssertTrue(risk?.riskLevelHasChanged == false)
 	}
 
@@ -436,7 +436,7 @@ final class RiskCalculationTests: XCTestCase {
 		// Test the case where we have an old risk level in the store,
 		// and the new risk level has changed
 
-		// Will produce increased risk
+		// Will produce high risk
 		let risk = RiskCalculation().risk(
 			summary: .summaryHigh,
 			configuration: .riskCalculationAppConfig,
@@ -448,7 +448,7 @@ final class RiskCalculationTests: XCTestCase {
 			providerConfiguration: config
 		)
 		XCTAssertNotNil(risk)
-		XCTAssertEqual(risk?.level, .increased)
+		XCTAssertEqual(risk?.level, .high)
 		XCTAssertTrue(risk?.riskLevelHasChanged ?? false)
 	}
 
@@ -473,7 +473,7 @@ final class RiskCalculationTests: XCTestCase {
 			previousRiskLevel: nil,
 			providerConfiguration: config
 		)
-		// Going from unknown -> increased or low risk does not produce a change
+		// Going from unknown -> high or low risk does not produce a change
 		XCTAssertFalse(risk?.riskLevelHasChanged ?? true)
 	}
 
@@ -521,11 +521,11 @@ final class RiskCalculationTests: XCTestCase {
 			previousRiskLevel: .low,
 			providerConfiguration: config
 		)
-		// The risk level did not change - we only care about changes between low and increased
+		// The risk level did not change - we only care about changes between low and high
 		XCTAssertFalse(risk?.riskLevelHasChanged ?? true)
 	}
 
-	func testCalculateRisk_IncreasedToUnknown() {
+	func testCalculateRisk_HighToUnknown() {
 		let config = RiskProvidingConfiguration(
 			exposureDetectionValidityDuration: .init(day: 1),
 			exposureDetectionInterval: .init(day: 1),
@@ -542,10 +542,10 @@ final class RiskCalculationTests: XCTestCase {
 			dateLastExposureDetection: Date().addingTimeInterval(.init(days: -2)),
 			activeTracing: .init(interval: 48 * 3600),
 			preconditions: preconditions(.valid),
-			previousRiskLevel: .increased,
+			previousRiskLevel: .high,
 			providerConfiguration: config
 		)
-		// The risk level did not change - we only care about changes between low and increased
+		// The risk level did not change - we only care about changes between low and high
 		XCTAssertFalse(risk?.riskLevelHasChanged ?? true)
 	}
 }

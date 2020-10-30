@@ -278,7 +278,7 @@ extension HomeInteractor {
 				detectionInterval: detectionInterval,
 				activeTracing: activeTracing
 			)
-		case .increased:
+		case .high:
 			riskLevelConfigurator = HomeHighRiskCellConfigurator(
 				state: riskCellActivityState,
 				numberRiskContacts: state.numberRiskContacts,

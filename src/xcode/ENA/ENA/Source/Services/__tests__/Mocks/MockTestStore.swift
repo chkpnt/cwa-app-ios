@@ -23,7 +23,7 @@ final class MockTestStore: Store, AppConfigCaching {
 	var firstPlaybookExecution: Date?
 	var lastBackgroundFakeRequest: Date = .init()
 	var hasSeenBackgroundFetchAlert: Bool = false
-	var previousRiskLevel: EitherLowOrIncreasedRiskLevel?
+	var previousRiskLevel: EitherLowOrHighRiskLevel?
 	var shouldShowRiskStatusLoweredAlert: Bool = false
 	var summary: SummaryMetadata?
 	var tracingStatusHistory: TracingStatusHistory = []

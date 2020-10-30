@@ -167,7 +167,7 @@ final class StoreTests: XCTestCase {
 		XCTAssertTrue(tmpStore.initialSubmitCompleted)
 		XCTAssertEqual(tmpStore.exposureActivationConsentAcceptTimestamp, testTimeStamp)
 		XCTAssertTrue(tmpStore.exposureActivationConsentAccept)
-		XCTAssertEqual(tmpStore.previousRiskLevel, .increased)
+		XCTAssertEqual(tmpStore.previousRiskLevel, .high)
 
 		XCTAssertEqual(tmpStore.summary?.date, testDate1)
 		XCTAssertEqual(tmpStore.summary?.summary.daysSinceLastExposure, 13)

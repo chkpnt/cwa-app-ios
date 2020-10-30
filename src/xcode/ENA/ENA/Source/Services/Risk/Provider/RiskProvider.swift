@@ -113,7 +113,7 @@ extension RiskProvider: RiskProviding {
 	var manualExposureDetectionState: ManualExposureDetectionState? {
 		configuration.manualExposureDetectionState(
 			activeTracingHours: store.tracingStatusHistory.activeTracing().inHours,
-			lastExposureDetectionDate: store.summary?.date)
+			lastExposureDetectionDate: store.lastExposureDetectionDate)
 	}
 
 	/// Called by consumers to request the risk level. This method triggers the risk level process.
@@ -127,17 +127,17 @@ extension RiskProvider: RiskProviding {
 		userInitiated: Bool,
 		ignoreCachedSummary: Bool = false,
 		exposureConfiguration: ENExposureConfiguration,
-		completion: @escaping (SummaryMetadata?) -> Void
+		completion: @escaping ([ExposureWindow]?) -> Void
 	) {
 		Log.info("RiskProvider: Determine summeries.", log: .riskDetection)
 		if !ignoreCachedSummary {
 			// Here we are in automatic mode and thus we have to check the validity of the current summary
 			let enoughTimeHasPassed = configuration.shouldPerformExposureDetection(
 				activeTracingHours: store.tracingStatusHistory.activeTracing().inHours,
-				lastExposureDetectionDate: store.summary?.date
+				lastExposureDetectionDate: store.lastExposureDetectionDate
 			)
 			if !enoughTimeHasPassed || !self.exposureManagerState.isGood {
-				completion(store.summary)
+				completion(store.exposureWindows)
 				return
 			}
 
@@ -145,7 +145,7 @@ extension RiskProvider: RiskProviding {
 			let shouldDetectExposures = (configuration.detectionMode == .manual && userInitiated) || configuration.detectionMode == .automatic
 
 			if shouldDetectExposures == false {
-				completion(store.summary)
+				completion(store.exposureWindows)
 				return
 			}
 		}
@@ -154,15 +154,16 @@ extension RiskProvider: RiskProviding {
 		self.cancellationToken = exposureSummaryProvider.detectExposure(
 			exposureConfiguration: exposureConfiguration,
 			activityStateDelegate: self
-		) { [weak self] detectedSummary in
+		) { [weak self] detectedExposureWindows in
 			guard let self = self else { return }
 
-			if let detectedSummary = detectedSummary {
-				self.store.summary = SummaryMetadata(detectionSummary: detectedSummary, date: Date())
+			if let detectedExposureWindows = detectedExposureWindows {
+				self.store.exposureWindows = detectedExposureWindows
+				self.store.lastExposureDetectionDate = Date()
 
 				/// We were able to calculate a risk so we have to reset the deadman notification
 				UNUserNotificationCenter.current().resetDeadmanNotification()
-				completion(self.store.summary)
+				completion(self.store.exposureWindows)
 			} else {
 				completion(nil)
 			}
@@ -176,7 +177,7 @@ extension RiskProvider: RiskProviding {
 	/// For Case2, we need to calculate the remaining time until we reach a full 24h of tracing.
 	func nextExposureDetectionDate() -> Date {
 		let nextDate = configuration.nextExposureDetectionDate(
-			lastExposureDetectionDate: store.summary?.date
+			lastExposureDetectionDate: store.lastExposureDetectionDate
 		)
 		switch nextDate {
 		case .now:  // Occurs when no detection has been performed ever
@@ -230,7 +231,7 @@ extension RiskProvider: RiskProviding {
 			daysSinceLastExposure: store.summary?.summary.daysSinceLastExposure,
 			numberOfExposures: Int(store.summary?.summary.matchedKeyCount ?? 0),
 			activeTracing: tracingHistory.activeTracing(),
-			exposureDetectionDate: store.summary?.date
+			exposureDetectionDate: store.lastExposureDetectionDate
 		)
 
 		// Risk Calculation involves some potentially long running tasks, like exposure detection and
@@ -331,12 +332,12 @@ extension RiskProvider: RiskProviding {
 		}
 
 		/// Only set shouldShowRiskStatusLoweredAlert if risk level has changed from increase to low or vice versa. Otherwise leave shouldShowRiskStatusLoweredAlert unchanged.
-		/// Scenario: Risk level changed from increased to low in the first risk calculation. In a second risk calculation it stays low. If the user does not open the app between these two calculations, the alert should still be shown.
+		/// Scenario: Risk level changed from high to low in the first risk calculation. In a second risk calculation it stays low. If the user does not open the app between these two calculations, the alert should still be shown.
 		if risk.riskLevelHasChanged {
 			switch risk.level {
 			case .low:
 				store.shouldShowRiskStatusLoweredAlert = true
-			case .increased:
+			case .high:
 				store.shouldShowRiskStatusLoweredAlert = false
 			default:
 				break
@@ -365,8 +366,8 @@ extension RiskProvider: RiskProviding {
 		switch risk.level {
 		case .low:
 			store.previousRiskLevel = .low
-		case .increased:
-			store.previousRiskLevel = .increased
+		case .high:
+			store.previousRiskLevel = .high
 		default:
 			break
 		}

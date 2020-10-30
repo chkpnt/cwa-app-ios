@@ -195,17 +195,22 @@ final class SecureStore: Store {
 		set { kvStore["exposureWindows"] = newValue }
 	}
 
+	var lastExposureDetectionDate: Date? {
+		get { kvStore["lastExposureDetectionDate"] as Date? }
+		set { kvStore["lastExposureDetectionDate"] = newValue }
+	}
+
 	var hourlyFetchingEnabled: Bool {
 		get { kvStore["hourlyFetchingEnabled"] as Bool? ?? false }
 		set { kvStore["hourlyFetchingEnabled"] = newValue }
 	}
 
-	var previousRiskLevel: EitherLowOrIncreasedRiskLevel? {
+	var previousRiskLevel: EitherLowOrHighRiskLevel? {
 		get {
 			guard let value = kvStore["previousRiskLevel"] as Int? else {
 				return nil
 			}
-			return EitherLowOrIncreasedRiskLevel(rawValue: value)
+			return EitherLowOrHighRiskLevel(rawValue: value)
 		}
 		set { kvStore["previousRiskLevel"] = newValue?.rawValue }
 	}

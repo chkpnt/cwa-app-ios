@@ -36,13 +36,13 @@ extension ExposureDetectionViewController {
 			risk?.level ?? .unknownInitial
 		}
 
-		let previousRiskLevel: EitherLowOrIncreasedRiskLevel?
+		let previousRiskLevel: EitherLowOrHighRiskLevel?
 
 		var actualRiskText: String {
 			switch previousRiskLevel {
 			case .low:
 				return AppStrings.ExposureDetection.low
-			case .increased:
+			case .high:
 				return AppStrings.ExposureDetection.high
 			default:
 				return AppStrings.ExposureDetection.unknown
@@ -93,7 +93,7 @@ private extension RiskLevel {
 		case .unknownOutdated: return AppStrings.ExposureDetection.unknown
 		case .inactive: return AppStrings.ExposureDetection.off
 		case .low: return AppStrings.ExposureDetection.low
-		case .increased: return AppStrings.ExposureDetection.high
+		case .high: return AppStrings.ExposureDetection.high
 		}
 	}
 
@@ -103,7 +103,7 @@ private extension RiskLevel {
 		case .unknownOutdated: return .enaColor(for: .riskNeutral)
 		case .inactive: return .enaColor(for: .background)
 		case .low: return .enaColor(for: .riskLow)
-		case .increased: return .enaColor(for: .riskHigh)
+		case .high: return .enaColor(for: .riskHigh)
 		}
 	}
 
@@ -113,7 +113,7 @@ private extension RiskLevel {
 		case .unknownOutdated: return .enaColor(for: .riskNeutral)
 		case .inactive: return .enaColor(for: .riskNeutral)
 		case .low: return .enaColor(for: .riskLow)
-		case .increased: return .enaColor(for: .riskHigh)
+		case .high: return .enaColor(for: .riskHigh)
 		}
 	}
 
@@ -123,7 +123,7 @@ private extension RiskLevel {
 		case .unknownOutdated: return .enaColor(for: .textContrast)
 		case .inactive: return .enaColor(for: .riskNeutral)
 		case .low: return .enaColor(for: .textContrast)
-		case .increased: return .enaColor(for: .textContrast)
+		case .high: return .enaColor(for: .textContrast)
 		}
 	}
 
@@ -133,7 +133,7 @@ private extension RiskLevel {
 		case .unknownOutdated: return .enaColor(for: .textContrast)
 		case .inactive: return .enaColor(for: .textPrimary1)
 		case .low: return .enaColor(for: .textContrast)
-		case .increased: return .enaColor(for: .textContrast)
+		case .high: return .enaColor(for: .textContrast)
 		}
 	}
 }

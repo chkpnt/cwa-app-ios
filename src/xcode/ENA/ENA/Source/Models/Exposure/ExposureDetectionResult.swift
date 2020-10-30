@@ -20,20 +20,16 @@
 import Foundation
 import ExposureNotification
 
-struct ScanInstance: Codable {
+struct ExposureDetectionResult: Codable {
 
-	let minimumAttenuation: ENAttenuation
-	let typicalAttenuation: ENAttenuation
-	let secondsSinceLastScan: Int
+	let totalRiskLevel: EitherLowOrHighRiskLevel
 
-}
+	let totalMinimumDistinctEncountersWithLowRisk: Int
+	let totalMinimumDistinctEncountersWithHighRisk: Int
 
-extension ScanInstance {
+	let mostRecentDateWithLowRisk: Date
+	let mostRecentDateWithHighRisk: Date
 
-	init(from scanInstance: ENScanInstance) {
-		minimumAttenuation = scanInstance.minimumAttenuation
-		typicalAttenuation = scanInstance.typicalAttenuation
-		secondsSinceLastScan = scanInstance.secondsSinceLastScan
-	}
+	let detectionDate: Date
 
 }

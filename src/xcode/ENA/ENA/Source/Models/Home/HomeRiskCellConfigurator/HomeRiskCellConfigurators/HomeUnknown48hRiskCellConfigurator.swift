@@ -21,7 +21,7 @@ import UIKit
 
 final class HomeUnknown48hRiskCellConfigurator: HomeRiskLevelCellConfigurator {
 
-	private var previousRiskLevel: EitherLowOrIncreasedRiskLevel?
+	private var previousRiskLevel: EitherLowOrHighRiskLevel?
 
 	// MARK: Creating a unknown 48h Risk cell
 	init(
@@ -30,7 +30,7 @@ final class HomeUnknown48hRiskCellConfigurator: HomeRiskLevelCellConfigurator {
 		detectionInterval: Int,
 		detectionMode: DetectionMode,
 		manualExposureDetectionState: ManualExposureDetectionState?,
-		previousRiskLevel: EitherLowOrIncreasedRiskLevel?
+		previousRiskLevel: EitherLowOrHighRiskLevel?
 	) {
 		self.previousRiskLevel = previousRiskLevel
 		super.init(
@@ -49,7 +49,7 @@ final class HomeUnknown48hRiskCellConfigurator: HomeRiskLevelCellConfigurator {
 		switch previousRiskLevel {
 		case .low?:
 			return AppStrings.Home.riskCardLastActiveItemLowTitle
-		case .increased?:
+		case .high?:
 			return AppStrings.Home.riskCardLastActiveItemHighTitle
 		default:
 			return AppStrings.Home.riskCardLastActiveItemUnknownTitle

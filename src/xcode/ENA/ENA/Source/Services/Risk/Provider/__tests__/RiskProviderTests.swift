@@ -264,7 +264,7 @@ final class RiskProviderTests: XCTestCase {
 		let store = MockTestStore()
 		store.shouldShowRiskStatusLoweredAlert = false
 
-		let riskProvider = try riskProviderChangingRiskLevel(from: .increased, to: .low, store: store)
+		let riskProvider = try riskProviderChangingRiskLevel(from: .high, to: .low, store: store)
 
 		let consumer = RiskConsumer()
 		riskProvider.observeRisk(consumer)
@@ -285,7 +285,7 @@ final class RiskProviderTests: XCTestCase {
 		let store = MockTestStore()
 		store.shouldShowRiskStatusLoweredAlert = true
 
-		let riskProvider = try riskProviderChangingRiskLevel(from: .increased, to: .low, store: store)
+		let riskProvider = try riskProviderChangingRiskLevel(from: .high, to: .low, store: store)
 
 		let consumer = RiskConsumer()
 		riskProvider.observeRisk(consumer)
@@ -306,7 +306,7 @@ final class RiskProviderTests: XCTestCase {
 		let store = MockTestStore()
 		store.shouldShowRiskStatusLoweredAlert = false
 
-		let riskProvider = try riskProviderChangingRiskLevel(from: .low, to: .increased, store: store)
+		let riskProvider = try riskProviderChangingRiskLevel(from: .low, to: .high, store: store)
 
 		let consumer = RiskConsumer()
 		riskProvider.observeRisk(consumer)
@@ -327,7 +327,7 @@ final class RiskProviderTests: XCTestCase {
 		let store = MockTestStore()
 		store.shouldShowRiskStatusLoweredAlert = true
 
-		let riskProvider = try riskProviderChangingRiskLevel(from: .low, to: .increased, store: store)
+		let riskProvider = try riskProviderChangingRiskLevel(from: .low, to: .high, store: store)
 
 		let consumer = RiskConsumer()
 		riskProvider.observeRisk(consumer)
@@ -386,11 +386,11 @@ final class RiskProviderTests: XCTestCase {
 		XCTAssertFalse(store.shouldShowRiskStatusLoweredAlert)
 	}
 
-	func testShouldShowRiskStatusLoweredAlertInitiallyTrueKeepsValueWhenRiskStatusStaysIncreased() throws {
+	func testShouldShowRiskStatusLoweredAlertInitiallyTrueKeepsValueWhenRiskStatusStaysHigh() throws {
 		let store = MockTestStore()
 		store.shouldShowRiskStatusLoweredAlert = true
 
-		let riskProvider = try riskProviderChangingRiskLevel(from: .increased, to: .increased, store: store)
+		let riskProvider = try riskProviderChangingRiskLevel(from: .high, to: .high, store: store)
 
 		let consumer = RiskConsumer()
 		riskProvider.observeRisk(consumer)
@@ -411,7 +411,7 @@ final class RiskProviderTests: XCTestCase {
 		let store = MockTestStore()
 		store.shouldShowRiskStatusLoweredAlert = false
 
-		let riskProvider = try riskProviderChangingRiskLevel(from: .increased, to: .increased, store: store)
+		let riskProvider = try riskProviderChangingRiskLevel(from: .high, to: .high, store: store)
 
 		let consumer = RiskConsumer()
 		riskProvider.observeRisk(consumer)
@@ -430,7 +430,7 @@ final class RiskProviderTests: XCTestCase {
 
 	// MARK: - Private
 
-	private func riskProviderChangingRiskLevel(from previousRiskLevel: EitherLowOrIncreasedRiskLevel, to newRiskLevel: EitherLowOrIncreasedRiskLevel, store: MockTestStore) throws -> RiskProvider {
+	private func riskProviderChangingRiskLevel(from previousRiskLevel: EitherLowOrHighRiskLevel, to newRiskLevel: EitherLowOrHighRiskLevel, store: MockTestStore) throws -> RiskProvider {
 		let duration = DateComponents(day: 2)
 
 		store.tracingStatusHistory = [.init(on: true, date: Date().addingTimeInterval(.init(days: -1)))]
@@ -476,7 +476,7 @@ struct RiskCalculationFake: RiskCalculationProtocol {
 		dateLastExposureDetection: Date?,
 		activeTracing: ActiveTracing,
 		preconditions: ExposureManagerState,
-		previousRiskLevel: EitherLowOrIncreasedRiskLevel?,
+		previousRiskLevel: EitherLowOrHighRiskLevel?,
 		providerConfiguration: RiskProvidingConfiguration
 	) -> Risk? {
 		let fakeRisk = Risk(

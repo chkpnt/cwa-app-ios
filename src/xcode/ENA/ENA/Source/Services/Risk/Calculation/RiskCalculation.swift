@@ -29,7 +29,7 @@ protocol RiskCalculationProtocol {
 		dateLastExposureDetection: Date?,
 		activeTracing: ActiveTracing,
 		preconditions: ExposureManagerState,
-		previousRiskLevel: EitherLowOrIncreasedRiskLevel?,
+		previousRiskLevel: EitherLowOrHighRiskLevel?,
 		providerConfiguration: RiskProvidingConfiguration
 	) -> Risk?
 }
@@ -104,7 +104,7 @@ struct RiskCalculation: RiskCalculationProtocol {
 //
 //		guard let summary = summary else { return .success(riskLevel) }
 //
-//		// Calculation low & increased risk levels
+//		// Calculation low & high risk levels
 //		let riskScoreClasses = configuration.riskScoreClasses
 //		let riskClasses = riskScoreClasses.riskClasses
 //
@@ -120,19 +120,19 @@ struct RiskCalculation: RiskCalculationProtocol {
 //
 //		let riskScore = calculateRawRisk(summary: summary, configuration: configuration)
 //
-//		var isIncreased = false
+//		var isHigh = false
 //
 //		if riskRangeLow.contains(riskScore) {
 //			riskLevels.append(.low)
 //		} else if riskRangeHigh.contains(riskScore) {
-//			isIncreased = true
-//			riskLevels.append(.increased)
+//			isHigh = true
+//			riskLevels.append(.high)
 //		} else {
 //			return .failure(.riskOutsideRange)
 //		}
 //
 //		// Depending on different conditions we return riskLevel
-//		let state = (isUnknownOutdated, isIncreased, isUnknownInitial)
+//		let state = (isUnknownOutdated, isHigh, isUnknownInitial)
 //		switch state {
 //		case (true, true, false):
 //			return .success(.unknownOutdated)
@@ -172,7 +172,7 @@ struct RiskCalculation: RiskCalculationProtocol {
 		dateLastExposureDetection: Date?,
 		activeTracing: ActiveTracing,
 		preconditions: ExposureManagerState,
-		previousRiskLevel: EitherLowOrIncreasedRiskLevel?,
+		previousRiskLevel: EitherLowOrHighRiskLevel?,
 		providerConfiguration: RiskProvidingConfiguration
 	) -> Risk? {
 //		switch riskLevel(
@@ -195,10 +195,10 @@ struct RiskCalculation: RiskCalculationProtocol {
 //
 //			var riskLevelHasChanged = false
 //			if let previousRiskLevel = previousRiskLevel,
-//			   let newRiskLevel = EitherLowOrIncreasedRiskLevel(with: level),
+//			   let newRiskLevel = EitherLowOrHighRiskLevel(with: level),
 //			   previousRiskLevel != newRiskLevel {
 //				// If the newly calculated risk level is different than the stored level, set the flag to true.
-//				// Note that we ignore all levels aside from low or increased risk
+//				// Note that we ignore all levels aside from low or high risk
 //				riskLevelHasChanged = true
 //			}
 //

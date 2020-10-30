@@ -18,30 +18,6 @@
 import Foundation
 import ExposureNotification
 
-enum EitherLowOrIncreasedRiskLevel: Int {
-	case low = 0
-	case increased = 1_000 /// so that increased > low + we have enough reserved values
-	var description: String {
-		switch self {
-		case .low: return "low"
-		case .increased: return "increased"
-		}
-	}
-}
-
-extension EitherLowOrIncreasedRiskLevel {
-	init?(with risk: RiskLevel) {
-		switch risk {
-		case .low:
-			self = .low
-		case .increased:
-			self = .increased
-		default:
-			return nil
-		}
-	}
-}
-
 protocol Store: AnyObject {
 	var isOnboarded: Bool { get set }
 	var onboardingVersion: String { get set }
@@ -64,6 +40,7 @@ protocol Store: AnyObject {
 	var allowTestsStatusNotification: Bool { get set }
 
 	var exposureWindows: [ExposureWindow] { get set }
+	var lastExposureDetectionDate: Date? { get set }
 
 	var registrationToken: String? { get set }
 	var hasSeenSubmissionExposureTutorial: Bool { get set }
@@ -95,9 +72,9 @@ protocol Store: AnyObject {
 
 	var tracingStatusHistory: TracingStatusHistory { get set }
 
-	var previousRiskLevel: EitherLowOrIncreasedRiskLevel? { get set }
+	var previousRiskLevel: EitherLowOrHighRiskLevel? { get set }
 
-	/// Set to true whenever a risk calculation changes the risk from .increased to .low
+	/// Set to true whenever a risk calculation changes the risk from .high to .low
 	var shouldShowRiskStatusLoweredAlert: Bool { get set }
 
 	/// `true` if the user needs to be informed about how risk detection works.
