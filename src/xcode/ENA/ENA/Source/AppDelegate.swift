@@ -35,11 +35,11 @@ extension AppDelegate: CoronaWarnAppDelegate {
 	// required - otherwise app will crash because cast will fail.
 }
 
-extension AppDelegate: ExposureSummaryProvider {
+extension AppDelegate: ExposureWindowsProvider {
 	func detectExposure(
 		exposureConfiguration: ENExposureConfiguration,
 		activityStateDelegate: ActivityStateProviderDelegate? = nil,
-		completion: @escaping (ENExposureDetectionSummary?) -> Void
+		completion: @escaping (Result<ENExposureDetectionSummary, ExposureDetection.DidEndPrematurelyReason>) -> Void
 	) -> CancellationToken {
 		Log.info("AppDelegate: Detect exposure.", log: .riskDetection)
 
@@ -61,11 +61,11 @@ extension AppDelegate: ExposureSummaryProvider {
 			switch result {
 			case .success(let summary):
 				Log.info("AppDelegate: Detect exposure completed", log: .riskDetection)
-				completion(summary)
+				completion(.success(summary))
 			case .failure(let error):
 				Log.error("AppDelegate: Detect exposure failed", log: .riskDetection, error: error)
 				self?.showError(exposure: error)
-				completion(nil)
+				completion(.failure(error))
 			}
 			self?.exposureDetection = nil
 		}
@@ -73,7 +73,6 @@ extension AppDelegate: ExposureSummaryProvider {
 	}
 
 	private func showError(exposure didEndPrematurely: ExposureDetection.DidEndPrematurelyReason) {
-
 		guard
 			let scene = UIApplication.shared.connectedScenes.first,
 			let delegate = scene.delegate as? SceneDelegate,

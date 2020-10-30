@@ -18,7 +18,6 @@
 //
 
 import Foundation
-import ExposureNotification
 
 /// The `SecureStore` class implements the `Store` protocol that defines all required storage attributes.
 /// It uses an SQLite Database that still needs to be encrypted
@@ -190,29 +189,14 @@ final class SecureStore: Store {
 		}
 	}
 
-	var exposureWindows: [ExposureWindow] {
-		get { kvStore["exposureWindows"] as [ExposureWindow]? ?? [] }
-		set { kvStore["exposureWindows"] = newValue }
-	}
-
-	var lastExposureDetectionDate: Date? {
-		get { kvStore["lastExposureDetectionDate"] as Date? }
-		set { kvStore["lastExposureDetectionDate"] = newValue }
+	var exposureDetectionResult: ExposureDetectionResult? {
+		get { kvStore["exposureDetectionResult"] as ExposureDetectionResult? }
+		set { kvStore["exposureDetectionResult"] = newValue }
 	}
 
 	var hourlyFetchingEnabled: Bool {
 		get { kvStore["hourlyFetchingEnabled"] as Bool? ?? false }
 		set { kvStore["hourlyFetchingEnabled"] = newValue }
-	}
-
-	var previousRiskLevel: EitherLowOrHighRiskLevel? {
-		get {
-			guard let value = kvStore["previousRiskLevel"] as Int? else {
-				return nil
-			}
-			return EitherLowOrHighRiskLevel(rawValue: value)
-		}
-		set { kvStore["previousRiskLevel"] = newValue?.rawValue }
 	}
 
 	var shouldShowRiskStatusLoweredAlert: Bool {

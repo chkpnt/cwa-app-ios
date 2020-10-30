@@ -18,18 +18,35 @@
 //
 
 import Foundation
-import ExposureNotification
 
 struct ExposureDetectionResult: Codable {
 
-	let totalRiskLevel: EitherLowOrHighRiskLevel
+	let riskLevel: EitherLowOrHighRiskLevel
 
-	let totalMinimumDistinctEncountersWithLowRisk: Int
-	let totalMinimumDistinctEncountersWithHighRisk: Int
+	let minimumDistinctEncountersWithLowRisk: Int
+	let minimumDistinctEncountersWithHighRisk: Int
 
 	let mostRecentDateWithLowRisk: Date
 	let mostRecentDateWithHighRisk: Date
 
 	let detectionDate: Date
+
+	var minimumDistinctEncountersWithCurrentRiskLevel: Int {
+		switch riskLevel {
+		case .low:
+			return minimumDistinctEncountersWithLowRisk
+		case .high:
+			return minimumDistinctEncountersWithHighRisk
+		}
+	}
+
+	var mostRecentDateWithCurrentRiskLevel: Date {
+		switch riskLevel {
+		case .low:
+			return mostRecentDateWithLowRisk
+		case .high:
+			return mostRecentDateWithHighRisk
+		}
+	}
 
 }

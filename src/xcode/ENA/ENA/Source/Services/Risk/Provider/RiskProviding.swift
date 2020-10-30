@@ -25,15 +25,20 @@ enum RiskCalculationError: Error {
 	case timeout
 	case missingAppConfig
 	case failedRiskCalculation
-	case failedRiskDetection
+	case failedRiskDetection(ExposureDetection.DidEndPrematurelyReason)
 }
 
 protocol RiskProviding: AnyObject {
+
 	typealias Completion = (RiskCalculationResult) -> Void
 
+	var configuration: RiskProvidingConfiguration { get set }
+
 	func observeRisk(_ consumer: RiskConsumer)
+	func removeRisk(_ consumer: RiskConsumer)
+
 	func requestRisk(userInitiated: Bool, ignoreCachedSummary: Bool, completion: Completion?)
+
 	func nextExposureDetectionDate() -> Date
 
-	var configuration: RiskProvidingConfiguration { get set }
 }

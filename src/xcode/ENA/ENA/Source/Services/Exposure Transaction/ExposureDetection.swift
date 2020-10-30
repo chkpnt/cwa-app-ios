@@ -21,7 +21,7 @@ import Foundation
 /// Every time the user wants to know the own risk the app creates an `ExposureDetection`.
 final class ExposureDetection {
 
-	typealias Completion = (Result<[ExposureWindow], DidEndPrematurelyReason>) -> Void
+	typealias Completion = (Result<[ENExposureWindow], DidEndPrematurelyReason>) -> Void
 
 	// MARK: - Init
 

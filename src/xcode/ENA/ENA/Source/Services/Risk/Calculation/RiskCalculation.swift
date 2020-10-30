@@ -24,7 +24,7 @@ import UIKit
 protocol RiskCalculationProtocol {
 
 	func risk(
-		exposureWindows: [ExposureWindow],
+		exposureWindows: [ENExposureWindow],
 		configuration: Cwa_Internal_V2_ApplicationConfigurationIOS,
 		dateLastExposureDetection: Date?,
 		activeTracing: ActiveTracing,
@@ -68,7 +68,7 @@ struct RiskCalculation: RiskCalculationProtocol {
 		- preconditions: Current state of the `ExposureManager`
 	*/
 	private func riskLevel(
-		exposureWindows: [ExposureWindow],
+		exposureWindows: [ENExposureWindow],
 		configuration: Cwa_Internal_V2_ApplicationConfigurationIOS,
 		dateLastExposureDetection: Date?,
 		activeTracing: ActiveTracing, // Get this from the `TracingStatusHistory`
@@ -167,7 +167,7 @@ struct RiskCalculation: RiskCalculationProtocol {
 //	}
 
 	func risk(
-		exposureWindows: [ExposureWindow],
+		exposureWindows: [ENExposureWindow],
 		configuration: Cwa_Internal_V2_ApplicationConfigurationIOS,
 		dateLastExposureDetection: Date?,
 		activeTracing: ActiveTracing,

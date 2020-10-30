@@ -16,7 +16,6 @@
 // under the License.
 
 import Foundation
-import ExposureNotification
 
 protocol Store: AnyObject {
 	var isOnboarded: Bool { get set }
@@ -39,8 +38,7 @@ protocol Store: AnyObject {
 	var allowRiskChangesNotification: Bool { get set }
 	var allowTestsStatusNotification: Bool { get set }
 
-	var exposureWindows: [ExposureWindow] { get set }
-	var lastExposureDetectionDate: Date? { get set }
+	var exposureDetectionResult: ExposureDetectionResult? { get set }
 
 	var registrationToken: String? { get set }
 	var hasSeenSubmissionExposureTutorial: Bool { get set }
@@ -71,9 +69,7 @@ protocol Store: AnyObject {
 	var exposureActivationConsentAccept: Bool { get set }
 
 	var tracingStatusHistory: TracingStatusHistory { get set }
-
-	var previousRiskLevel: EitherLowOrHighRiskLevel? { get set }
-
+	
 	/// Set to true whenever a risk calculation changes the risk from .high to .low
 	var shouldShowRiskStatusLoweredAlert: Bool { get set }
 

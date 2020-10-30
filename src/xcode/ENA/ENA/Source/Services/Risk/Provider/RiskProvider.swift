@@ -22,13 +22,16 @@ import ExposureNotification
 import UIKit
 import Combine
 
-protocol ExposureSummaryProvider: AnyObject {
-	typealias Completion = (ENExposureDetectionSummary?) -> Void
+protocol ExposureWindowsProvider: AnyObject {
+
+	typealias Completion = (Result<[ENExposureWindow], ExposureDetection.DidEndPrematurelyReason>) -> Void
+
 	func detectExposure(
 		exposureConfiguration: ENExposureConfiguration,
 		activityStateDelegate: ActivityStateProviderDelegate?,
 		completion: @escaping Completion
 	) -> CancellationToken
+
 }
 
 /// This protocol is used to provide an up-to-date exposure detection state for the RiskProvider.
@@ -36,25 +39,24 @@ protocol ActivityStateProviderDelegate: class {
 	func provideActivityState(_ state: RiskProvider.ActivityState)
 }
 
-final class RiskProvider {
+final class RiskProvider: RiskProviding, ActivityStateProviderDelegate {
 
-	private let queue = DispatchQueue(label: "com.sap.RiskProvider")
-	private let targetQueue: DispatchQueue
-	private var consumersQueue = DispatchQueue(label: "com.sap.RiskProvider.consumer")
-	private var cancellationToken: CancellationToken?
-	private let riskCalculation: RiskCalculationProtocol
+	enum ActivityState {
+		case idle
+		case downloading
+		case detecting
 
-	private var _consumers: [RiskConsumer] = []
-	private var consumers: [RiskConsumer] {
-		get { consumersQueue.sync { _consumers } }
-		set { consumersQueue.sync { _consumers = newValue } }
+		var isActive: Bool {
+			self != .idle
+		}
 	}
 
-	// MARK: Creating a Risk Level Provider
+	// MARK: - Init
+
 	init(
 		configuration: RiskProvidingConfiguration,
 		store: Store,
-		exposureSummaryProvider: ExposureSummaryProvider,
+		exposureWindowsProvider: ExposureWindowsProvider,
 		appConfigurationProvider: AppConfigurationProviding,
 		exposureManagerState: ExposureManagerState,
 		targetQueue: DispatchQueue = .main,
@@ -62,7 +64,7 @@ final class RiskProvider {
 	) {
 		self.configuration = configuration
 		self.store = store
-		self.exposureSummaryProvider = exposureSummaryProvider
+		self.exposureWindowsProvider = exposureWindowsProvider
 		self.appConfigurationProvider = appConfigurationProvider
 		self.exposureManagerState = exposureManagerState
 		self.targetQueue = targetQueue
@@ -75,32 +77,9 @@ final class RiskProvider {
 			.store(in: &subscriptions)
 	}
 
-	// MARK: Properties
-	private var subscriptions = Set<AnyCancellable>()
-	private let store: Store
-	private let exposureSummaryProvider: ExposureSummaryProvider
-	private let appConfigurationProvider: AppConfigurationProviding
-	@Published private(set) var activityState: ActivityState = .idle
-	var exposureManagerState: ExposureManagerState
+	// MARK: - Protocol RiskProviding
+
 	var configuration: RiskProvidingConfiguration
-}
-
-private extension RiskConsumer {
-	func provideRiskCalculationResult(_ result: RiskCalculationResult) {
-		switch result {
-		case .success(let risk):
-			targetQueue.async { [weak self] in
-				self?.didCalculateRisk(risk)
-			}
-		case .failure(let error):
-			targetQueue.async { [weak self] in
-				self?.didFailCalculateRisk(error)
-			}
-		}
-	}
-}
-
-extension RiskProvider: RiskProviding {
 
 	func observeRisk(_ consumer: RiskConsumer) {
 		consumers.append(consumer)
@@ -110,64 +89,10 @@ extension RiskProvider: RiskProviding {
 		consumers.removeAll(where: { $0 === consumer })
 	}
 
-	var manualExposureDetectionState: ManualExposureDetectionState? {
-		configuration.manualExposureDetectionState(
-			activeTracingHours: store.tracingStatusHistory.activeTracing().inHours,
-			lastExposureDetectionDate: store.lastExposureDetectionDate)
-	}
-
 	/// Called by consumers to request the risk level. This method triggers the risk level process.
 	func requestRisk(userInitiated: Bool, ignoreCachedSummary: Bool = false, completion: Completion? = nil) {
 		queue.async {
 			self._requestRiskLevel(userInitiated: userInitiated, ignoreCachedSummary: ignoreCachedSummary, completion: completion)
-		}
-	}
-
-	private func determineExposureWindows(
-		userInitiated: Bool,
-		ignoreCachedSummary: Bool = false,
-		exposureConfiguration: ENExposureConfiguration,
-		completion: @escaping ([ExposureWindow]?) -> Void
-	) {
-		Log.info("RiskProvider: Determine summeries.", log: .riskDetection)
-		if !ignoreCachedSummary {
-			// Here we are in automatic mode and thus we have to check the validity of the current summary
-			let enoughTimeHasPassed = configuration.shouldPerformExposureDetection(
-				activeTracingHours: store.tracingStatusHistory.activeTracing().inHours,
-				lastExposureDetectionDate: store.lastExposureDetectionDate
-			)
-			if !enoughTimeHasPassed || !self.exposureManagerState.isGood {
-				completion(store.exposureWindows)
-				return
-			}
-
-			// Enough time has passed.
-			let shouldDetectExposures = (configuration.detectionMode == .manual && userInitiated) || configuration.detectionMode == .automatic
-
-			if shouldDetectExposures == false {
-				completion(store.exposureWindows)
-				return
-			}
-		}
-
-		// The summary is outdated: do a exposure detection
-		self.cancellationToken = exposureSummaryProvider.detectExposure(
-			exposureConfiguration: exposureConfiguration,
-			activityStateDelegate: self
-		) { [weak self] detectedExposureWindows in
-			guard let self = self else { return }
-
-			if let detectedExposureWindows = detectedExposureWindows {
-				self.store.exposureWindows = detectedExposureWindows
-				self.store.lastExposureDetectionDate = Date()
-
-				/// We were able to calculate a risk so we have to reset the deadman notification
-				UNUserNotificationCenter.current().resetDeadmanNotification()
-				completion(self.store.exposureWindows)
-			} else {
-				completion(nil)
-			}
-			self.cancellationToken = nil
 		}
 	}
 
@@ -193,24 +118,53 @@ extension RiskProvider: RiskProviding {
 		}
 	}
 
-	private func successOnTargetQueue(risk: Risk, completion: Completion? = nil) {
-		targetQueue.async {
-			completion?(.success(risk))
-		}
+	// MARK: - Protocol ActivityStateProviderDelegate
 
-		for consumer in consumers {
-			_provideRiskResult(.success(risk), to: consumer)
+	/// - NOTE: The activity state is propagated to subscribers
+	/// via a sink that can be found in the RiskProvider initializer.
+	func provideActivityState(_ state: ActivityState) {
+		activityState = state
+	}
+
+	private func _provideActivityState(_ state: ActivityState) {
+		targetQueue.async { [weak self] in
+			self?.consumers.forEach {
+				$0.didChangeActivityState?(state)
+			}
 		}
 	}
 
-	private func failOnTargetQueue(error: RiskCalculationError, completion: Completion? = nil) {
-		targetQueue.async {
-			completion?(.failure(error))
-		}
+	// MARK: - Internal
 
-		for consumer in consumers {
-			_provideRiskResult(.failure(error), to: consumer)
-		}
+	@Published private(set) var activityState: ActivityState = .idle
+
+	var exposureManagerState: ExposureManagerState
+
+	// MARK: - Private
+
+	private let queue = DispatchQueue(label: "com.sap.RiskProvider")
+	private let targetQueue: DispatchQueue
+	private var consumersQueue = DispatchQueue(label: "com.sap.RiskProvider.consumer")
+
+	private var cancellationToken: CancellationToken?
+	private let riskCalculation: RiskCalculationProtocol
+
+	private var _consumers: [RiskConsumer] = []
+	private var consumers: [RiskConsumer] {
+		get { consumersQueue.sync { _consumers } }
+		set { consumersQueue.sync { _consumers = newValue } }
+	}
+
+	private var subscriptions = Set<AnyCancellable>()
+
+	private let store: Store
+	private let exposureWindowsProvider: ExposureWindowsProvider
+	private let appConfigurationProvider: AppConfigurationProviding
+
+	private var manualExposureDetectionState: ManualExposureDetectionState? {
+		configuration.manualExposureDetectionState(
+			activeTracingHours: store.tracingStatusHistory.activeTracing().inHours,
+			lastExposureDetectionDate: store.exposureDetectionResult?.detectionDate)
 	}
 
 	private func _requestRiskLevel(userInitiated: Bool, ignoreCachedSummary: Bool, completion: Completion? = nil) {
@@ -224,14 +178,15 @@ extension RiskProvider: RiskProviding {
 		#endif
 
 		provideActivityState(.idle)
-		var exposureWindows: [ExposureWindow]
+		var exposureWindows: [ENExposureWindow]?
 		let tracingHistory = store.tracingStatusHistory
 		let numberOfEnabledHours = tracingHistory.activeTracing().inHours
+
 		let details = Risk.Details(
-			daysSinceLastExposure: store.summary?.summary.daysSinceLastExposure,
-			numberOfExposures: Int(store.summary?.summary.matchedKeyCount ?? 0),
+			daysSinceLastExposure: store.exposureDetectionResult?.,
+			numberOfExposures: store.exposureDetectionResult?.minimumDistinctEncountersWithCurrentRiskLevel ?? 0,
 			activeTracing: tracingHistory.activeTracing(),
-			exposureDetectionDate: store.lastExposureDetectionDate
+			exposureDetectionDate: store.exposureDetectionResult?.detectionDate
 		)
 
 		// Risk Calculation involves some potentially long running tasks, like exposure detection and
@@ -261,57 +216,84 @@ extension RiskProvider: RiskProviding {
 			return
 		}
 
+
+		let shouldDetectExposures = (configuration.detectionMode == .manual && userInitiated) || configuration.detectionMode == .automatic
+		let enoughTimeHasPassed = configuration.shouldPerformExposureDetection(
+			activeTracingHours: store.tracingStatusHistory.activeTracing().inHours,
+			lastExposureDetectionDate: store.exposureDetectionResult?.detectionDate
+		)
+
+		if !shouldDetectExposures || !enoughTimeHasPassed {
+			if let exposureDetectionResult = store.exposureDetectionResult {
+				completion(.success(exposureDetectionResult))
+			} else {
+				completion(.failure(.missingCachedSummary))
+			}
+
+			return
+		}
+
 		let group = DispatchGroup()
 
 		group.enter()
+
 		var appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS?
+
 		appConfigurationProvider.appConfiguration { [weak self] result in
 			switch result {
 			case .success(let config):
 				appConfiguration = config
 
-				self?.determineExposureWindows(
-					userInitiated: userInitiated,
-					ignoreCachedSummary: ignoreCachedSummary,
-					exposureConfiguration: ENExposureConfiguration(from: config.exposureConfiguration)
-				) {
-					exposureWindows = $0
-					group.leave()
-				}
+				self?.getExposureWindows(
+					exposureConfiguration: ENExposureConfiguration(from: config.exposureConfiguration),
+					completion: { [weak self] result in
+					guard let self = self else { return }
+
+					   switch result {
+					   case .success(let _exposureWindows):
+						   exposureWindows = _exposureWindows
+					   case .failure(let error):
+						   Log.info("RiskProvider: Failed determining exposure windows.", log: .riskDetection)
+						   self.failOnTargetQueue(error: error, completion: completion)
+					   }
+
+					   group.leave()
+				   }
+				)
 			case .failure(let error):
 				Log.error(error.localizedDescription, log: .api)
-
 				self?.failOnTargetQueue(error: .missingAppConfig, completion: completion)
 
 				group.leave()
 			}
 		}
 
-		guard group.wait(timeout: .now() + .seconds(60 * 8)) == .success,
-			  let unwrappedAppConfiguration = appConfiguration else {
+		guard group.wait(timeout: .now() + .seconds(60 * 8)) == .success else {
 			cancellationToken?.cancel()
 			cancellationToken = nil
+
 			Log.info("RiskProvider: Canceled risk calculation due to timeout", log: .riskDetection)
 			failOnTargetQueue(error: .timeout, completion: completion)
+
 			return
 		}
 
 		cancellationToken = nil
 
-		guard exposureWindows != nil else {
-			Log.info("RiskProvider: Failed determining summary.", log: .riskDetection)
-			self.failOnTargetQueue(error: .failedRiskDetection, completion: completion)
+		guard let unwrappedAppConfiguration = appConfiguration, let unwrappedExposureWindows = exposureWindows else {
+			// Errors are thrown above already
 			return
 		}
 
 		_requestRiskLevel(
-			exposureWindows: exposureWindows,
+			exposureWindows: unwrappedExposureWindows,
 			appConfiguration: unwrappedAppConfiguration,
 			completion: completion
 		)
+
 	}
 
-	private func _requestRiskLevel(exposureWindows: [ExposureWindow], appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS, completion: Completion? = nil) {
+	private func _requestRiskLevel(exposureWindows: [ENExposureWindow], appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS, completion: Completion? = nil) {
 		Log.info("RiskProvider: Apply risk calculation", log: .riskDetection)
 
 		let activeTracing = store.tracingStatusHistory.activeTracing()
@@ -320,10 +302,10 @@ extension RiskProvider: RiskProviding {
 			let risk = riskCalculation.risk(
 				exposureWindows: exposureWindows,
 				configuration: appConfiguration,
-				dateLastExposureDetection: summary?.date,
+				dateLastExposureDetection: store.exposureDetectionResult?.detectionDate,
 				activeTracing: activeTracing,
 				preconditions: exposureManagerState,
-				previousRiskLevel: store.previousRiskLevel,
+				previousRiskLevel: store.exposureDetectionResult?.riskLevel,
 				providerConfiguration: configuration
 			) else {
 				Log.error("Serious error during risk calculation", log: .api)
@@ -345,10 +327,34 @@ extension RiskProvider: RiskProviding {
 		}
 
 		successOnTargetQueue(risk: risk, completion: completion)
-		savePreviousRiskLevel(risk)
 
 		/// We were able to calculate a risk so we have to reset the DeadMan Notification
 		UNUserNotificationCenter.current().resetDeadmanNotification()
+	}
+
+	private func getExposureWindows(
+		exposureConfiguration: ENExposureConfiguration,
+		completion: @escaping (Result<[ENExposureWindow], RiskCalculationError>) -> Void
+	) {
+		Log.info("RiskProvider: Determine summeries.", log: .riskDetection)
+
+		self.cancellationToken = exposureWindowsProvider.detectExposure(
+			exposureConfiguration: exposureConfiguration,
+			activityStateDelegate: self
+		) { [weak self] result in
+			guard let self = self else { return }
+
+			switch result {
+			case .success(let detectedExposureWindows):
+				/// We were able to calculate a risk so we have to reset the deadman notification
+				UNUserNotificationCenter.current().resetDeadmanNotification()
+				completion(.success(detectedExposureWindows))
+			case .failure(let error):
+				completion(.failure(.failedRiskDetection(error)))
+			}
+
+			self.cancellationToken = nil
+		}
 	}
 
 	private func _provideRiskResult(_ result: RiskCalculationResult, to consumer: RiskConsumer?) {
@@ -362,49 +368,31 @@ extension RiskProvider: RiskProviding {
 		consumer?.provideRiskCalculationResult(result)
 	}
 
-	private func savePreviousRiskLevel(_ risk: Risk) {
-		switch risk.level {
-		case .low:
-			store.previousRiskLevel = .low
-		case .high:
-			store.previousRiskLevel = .high
-		default:
-			break
+	private func successOnTargetQueue(risk: Risk, completion: Completion? = nil) {
+		targetQueue.async {
+			completion?(.success(risk))
+		}
+
+		for consumer in consumers {
+			_provideRiskResult(.success(risk), to: consumer)
 		}
 	}
-}
 
-extension RiskProvider: ActivityStateProviderDelegate {
+	private func failOnTargetQueue(error: RiskCalculationError, completion: Completion? = nil) {
+		targetQueue.async {
+			completion?(.failure(error))
+		}
 
-	/// - NOTE: The activity state is propagated to subscribers
-	/// via a sink that can be found in the RiskProvider initializer.
-	func provideActivityState(_ state: ActivityState) {
-		activityState = state
-	}
-
-	private func _provideActivityState(_ state: ActivityState) {
-		targetQueue.async { [weak self] in
-			self?.consumers.forEach {
-				$0.didChangeActivityState?(state)
-			}
+		for consumer in consumers {
+			_provideRiskResult(.failure(error), to: consumer)
 		}
 	}
-}
 
-extension RiskProvider {
-	enum ActivityState {
-		case idle
-		case downloading
-		case detecting
-
-		var isActive: Bool {
-			self != .idle
-		}
-	}
 }
 
 #if DEBUG
 extension RiskProvider {
+
 	private func _requestRiskLevel_Mock(userInitiated: Bool, completion: Completion? = nil) {
 		let risk = Risk.mocked
 
@@ -418,5 +406,6 @@ extension RiskProvider {
 
 		savePreviousRiskLevel(risk)
 	}
+
 }
 #endif

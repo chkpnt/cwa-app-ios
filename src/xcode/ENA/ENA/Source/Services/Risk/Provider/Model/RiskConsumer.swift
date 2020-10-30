@@ -20,12 +20,14 @@
 import Foundation
 
 final class RiskConsumer: NSObject {
-	// MARK: Creating a Consumer
+
+	// MARK: - Init
 	init(targetQueue: DispatchQueue = .main) {
 		self.targetQueue = targetQueue
 	}
 
-	// MARK: Properties
+	// MARK: - Internal
+
 	/// The queue `didCalculateRisk` will be called on. Defaults to `.main`.
 	let targetQueue: DispatchQueue
 
@@ -37,4 +39,18 @@ final class RiskConsumer: NSObject {
 
 	/// Called when loading status changed
 	var didChangeActivityState: ((_ activityState: RiskProvider.ActivityState) -> Void)?
+
+	func provideRiskCalculationResult(_ result: RiskCalculationResult) {
+		switch result {
+		case .success(let risk):
+			targetQueue.async { [weak self] in
+				self?.didCalculateRisk(risk)
+			}
+		case .failure(let error):
+			targetQueue.async { [weak self] in
+				self?.didFailCalculateRisk(error)
+			}
+		}
+	}
+
 }

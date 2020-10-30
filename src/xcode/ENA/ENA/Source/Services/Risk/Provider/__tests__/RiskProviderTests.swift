@@ -23,9 +23,9 @@ import ExposureNotification
 
 private final class Summary: ENExposureDetectionSummary {}
 
-private final class ExposureSummaryProviderMock: ExposureSummaryProvider {
+private final class ExposureWindowsProviderMock: ExposureWindowsProvider {
 
-	var onDetectExposure: ((ExposureSummaryProvider.Completion) -> Void)?
+	var onDetectExposure: ((ExposureWindowsProvider.Completion) -> Void)?
 
 	func detectExposure(
 		appConfiguration: Cwa_Internal_V2_ApplicationConfigurationIOS,
